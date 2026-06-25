@@ -18,6 +18,9 @@ import SojetStorePage from './pages/Store/Sojet/SojetStorePage';
 import BestCodeStorePage from './pages/Store/BestCode/BestCodeStorePage';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
 import Invoices from './pages/ReceptionUploads/InvoicesPage';
+import GrnsPage from './pages/ReceptionUploads/GrnsPage';
+import PurchaseOrdersPage from './pages/ReceptionUploads/PurchaseOrdersPage';
+import QuotationsPage from './pages/ReceptionUploads/QuotationsPage';
 
 export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,10 +75,10 @@ export default function App() {
           </ProtectedRoute>
         } />
 
-        <Route path='/invoices' element={<Invoices />}/>
-        <Route path='/grns' element={<Invoices />}/>
-        <Route path='/purchaseorders' element={<Invoices />}/>
-        <Route path='/quotations' element={<Invoices />}/>
+        <Route path='/invoices' element={<Invoices searchTerm={searchTerm} setSearchTerm={setSearchTerm} />}/>
+        <Route path='/grns' element={<GrnsPage />}/>
+        <Route path='/purchaseorders' element={<PurchaseOrdersPage />}/>
+        <Route path='/quotations' element={<QuotationsPage />}/>
 
         {/* ── Admin + special permission only ── */}
         <Route path='/store' element={
