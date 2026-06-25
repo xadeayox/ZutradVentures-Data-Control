@@ -17,6 +17,7 @@ import SavemaStorePage from './pages/Store/Savema/SavemaStorePage';
 import SojetStorePage from './pages/Store/Sojet/SojetStorePage';
 import BestCodeStorePage from './pages/Store/BestCode/BestCodeStorePage';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
+import Invoices from './pages/ReceptionUploads/InvoicesPage';
 
 export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -70,6 +71,11 @@ export default function App() {
             <SupplyPage searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </ProtectedRoute>
         } />
+
+        <Route path='/invoices' element={<Invoices />}/>
+        <Route path='/grns' element={<Invoices />}/>
+        <Route path='/purchaseorders' element={<Invoices />}/>
+        <Route path='/quotations' element={<Invoices />}/>
 
         {/* ── Admin + special permission only ── */}
         <Route path='/store' element={

@@ -13,6 +13,7 @@ import { Footer } from "../../components/Footer";
 import ArrowUp from '../../assets/images/up-arrow.png';
 import ArrowDown from '../../assets/images/down-arrow.png';
 import { apiFetch } from "../../api";
+import { HamBurgerLinks } from "../../components/HamBurgerLinks";
 
 interface SearchTermProps {
     searchTerm: string,

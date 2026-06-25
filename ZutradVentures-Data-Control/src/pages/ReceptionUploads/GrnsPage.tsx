@@ -1,4 +1,4 @@
-export default function Invoices() {
+export default function GrnsPage() {
     return(
         <div className="invoices-container">
             <div className="invoices-list">

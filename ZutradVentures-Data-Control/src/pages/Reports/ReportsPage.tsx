@@ -13,6 +13,7 @@ import ArrowDown from '../../assets/images/down-arrow.png';
 import { Footer } from '../../components/Footer';
 import type { ReportData } from './reportTypes';
 import { apiFetch } from '../../api';
+import { HamBurgerLinks } from '../../components/HamBurgerLinks';
 
 interface SearchTermProps {
     searchTerm: string,
@@ -249,6 +250,7 @@ export default function ReportsPage({ searchTerm, setSearchTerm }: SearchTermPro
                     </span>
                 </div>
             </div>
+            <HamBurgerLinks />
             <Administrator />
             <Store />
             <Supply />

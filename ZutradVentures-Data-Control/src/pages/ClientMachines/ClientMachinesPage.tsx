@@ -13,6 +13,7 @@ import './ClientMachinesPage.css';
 import { Footer } from '../../components/Footer';
 import type { ClientData } from './clientTypes';
 import { apiFetch } from '../../api';
+import { HamBurgerLinks } from '../../components/HamBurgerLinks';
 
 interface SearchTermProps {
     searchTerm: string,
@@ -122,6 +123,7 @@ export default function ClientMachinesPage({ searchTerm, setSearchTerm }: Search
 
             <Administrator />
             <Maintenance />
+            <HamBurgerLinks />
             <Reports />
             <Store />
             <Supply />

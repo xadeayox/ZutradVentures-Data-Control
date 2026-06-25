@@ -13,6 +13,7 @@ import ArrowUp from '../../assets/images/up-arrow.png';
 import ArrowDown from '../../assets/images/down-arrow.png';
 import { Footer } from "../../components/Footer";
 import { apiFetch } from "../../api";
+import { HamBurgerLinks } from "../../components/HamBurgerLinks";
 
 interface SearchTermProps {
     searchTerm: string,
@@ -73,6 +74,7 @@ export default function StorePage({ searchTerm, setSearchTerm }: SearchTermProps
                     onItemAdded={fetchStore}
                 />
             </section>
+            <HamBurgerLinks />
             <Administrator />
             <Reports />
             <Supply />

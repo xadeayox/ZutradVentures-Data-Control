@@ -10,6 +10,7 @@ import SearchLogo from '../../assets/images/search-icon.png';
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../api";
 import './AllSubPage.css';
+import { HamBurgerLinks } from "../../components/HamBurgerLinks";
 
 interface searchTermProps {
     searchTerm: string,
@@ -247,7 +248,7 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
                 ))}
 
             </div>
-
+            <HamBurgerLinks />
             <Administrator />
             <Store />
             <Supply />
