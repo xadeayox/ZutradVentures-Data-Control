@@ -14,8 +14,9 @@ export function ReportMessage({ report, userRole, onStatusChange }: ReportMessag
     const [error, setError] = useState('');
 
     const imageURL = 'http://localhost:5000';
-    // replace with: http://zutrad-ventures-data-control-env.eba-kpm7wuuy.eu-north-1.elasticbeanstalk.com
-    
+    // replace with: 
+    // http://zutrad-ventures-data-control-env.eba-kpm7wuuy.eu-north-1.elasticbeanstalk.com
+
     const isAdmin = userRole === 'administrator';
 
     async function updateStatus(status: 'approved' | 'rejected') {
