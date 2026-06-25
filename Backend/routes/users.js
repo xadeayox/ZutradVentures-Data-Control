@@ -141,44 +141,86 @@ router.delete('/:id', protect, restrictTo('administrator'), async (req, res) => 
 
 
 // ─── POST /api/users/assign-role ─────────────────────────────────────────────
-// Grants a special page permission to a specific user.
+// Grants a special page permission to one or more users.
 // Only administrators can do this.
-// Frontend sends: { userId, page } where page is 'store', 'maintenance', or 'supply'
+// Frontend sends: { userIds: [1, 2, 3], page } — userIds can also be a single ID
+// page must be one of: 'store', 'maintenance', 'supply'
 
 router.post('/assign-role', protect, restrictTo('administrator'), async (req, res) => {
     try {
-        const { userId, page } = req.body;
+        const { userIds, page } = req.body;
 
-        if (!userId || !page) {
-            return res.status(400).json({ message: 'User and page are required.' });
+        if (!userIds || !page) {
+            return res.status(400).json({ message: 'Users and page are required.' });
         }
 
-        // 1. Make sure the user exists
-        const user = await User.findByPk(userId);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
+        // 1. Normalize: accept both a single ID and an array, then sanitize to valid integers
+        const ids = (Array.isArray(userIds) ? userIds : [userIds])
+            .map(id => parseInt(id, 10))
+            .filter(id => !isNaN(id) && id > 0);
+
+        if (ids.length === 0) {
+            return res.status(400).json({ message: 'No valid user IDs provided.' });
         }
 
-        // 2. Admins already have access to everything — no need to assign
-        if (user.role === 'administrator') {
-            return res.status(400).json({ message: 'Administrators already have full access.' });
-        }
+        // 2. Fetch all matching users in one query
+        const users = await User.findAll({ where: { id: ids } });
 
-        // 3. findOrCreate prevents duplicate permissions
-        // If the permission already exists, it just returns it without creating a duplicate
-        const [permission, created] = await Permission.findOrCreate({
-            where: { userId, page }
-        });
+        // 3. Catch any IDs that don't exist in the DB — fail early before touching permissions
+        const foundIds = new Set(users.map(u => u.id));
+        const missingIds = ids.filter(id => !foundIds.has(id));
 
-        if (!created) {
-            return res.status(409).json({
-                message: `${user.firstName} already has access to ${page}.`
+        if (missingIds.length > 0) {
+            return res.status(404).json({
+                message: 'Some users were not found.',
+                missingIds
             });
         }
 
+        // 4. Process each user concurrently — track individual granted/skipped outcomes
+        const results = await Promise.all(
+            users.map(async (user) => {
+                // Admins already have full access — skip without error
+                if (user.role === 'administrator') {
+                    return {
+                        userId: user.id,
+                        name: `${user.firstName} ${user.surname}`,
+                        status: 'skipped',
+                        reason: 'Already an administrator.'
+                    };
+                }
+
+                // findOrCreate prevents duplicate permissions at the DB level
+                const [permission, created] = await Permission.findOrCreate({
+                    where: { userId: user.id, page }
+                });
+
+                if (!created) {
+                    return {
+                        userId: user.id,
+                        name: `${user.firstName} ${user.surname}`,
+                        status: 'skipped',
+                        reason: `Already has access to ${page}.`
+                    };
+                }
+
+                return {
+                    userId: user.id,
+                    name: `${user.firstName} ${user.surname}`,
+                    status: 'granted',
+                    permission
+                };
+            })
+        );
+
+        // 5. Split outcomes for a clear response summary
+        const granted = results.filter(r => r.status === 'granted');
+        const skipped = results.filter(r => r.status === 'skipped');
+
         res.status(201).json({
-            message: `${user.firstName} ${user.surname} has been granted access to ${page}.`,
-            permission
+            message: `${granted.length} user(s) granted access to ${page}. ${skipped.length} skipped.`,
+            granted,
+            skipped
         });
 
     } catch (error) {

@@ -66,7 +66,7 @@ export function SpecialRoles() {
         try {
             const response = await apiFetch('/api/users/assign-role', {
                 method: 'POST',
-                body: JSON.stringify({ userId: selectedUserId, page: selectedPage })
+                body: JSON.stringify({ userIds: [selectedUserId], page: selectedPage })
             });
 
             const data = await response.json();
@@ -84,7 +84,7 @@ export function SpecialRoles() {
             fetchUsers();
 
         } catch (err) {
-            setAssignError('Could not connect to the server.');
+            setAssignError(` ${err}: Could not connect to the server.`);
         }
 
         setAssignLoading(false);
@@ -123,7 +123,7 @@ export function SpecialRoles() {
             fetchUsers();
 
         } catch (err) {
-            setRemoveError('Could not connect to the server.');
+            setRemoveError(`${err}: Could not connect to the server.`);
         }
 
         setRemoveLoading(false);
