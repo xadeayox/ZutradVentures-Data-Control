@@ -29,6 +29,7 @@ export default function InvoicesPage({searchTerm, setSearchTerm}: searchTermProp
     const [id, setId] = useState(0);
     const [invoiceSearch, setInvoiceSearch] = useState('');
 
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -47,6 +48,9 @@ export default function InvoicesPage({searchTerm, setSearchTerm}: searchTermProp
 
         setInvoiceList(prev=> [...prev, newInvoice]);
         setFactory('');
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     }
 
     // Filter invoices based on search term
@@ -150,7 +154,9 @@ export default function InvoicesPage({searchTerm, setSearchTerm}: searchTermProp
                     <option value="TGI Sagamu">TGI Sagamu</option>
                     <option value="Honeywell Sagamu">Honeywell Sagamu</option>
                 </select>
-                <input type="file" name="invoice" multiple className="reception-uploads-file" 
+                <input type="file" name="invoice" multiple 
+                    className="reception-uploads-file" 
+                    ref={fileInputRef} 
                     onChange={(event) => {
                         const file = event.target.files?.[0];
                         if (file) {

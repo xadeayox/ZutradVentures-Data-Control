@@ -29,6 +29,7 @@ export default function PurchaseOrdersPage({searchTerm, setSearchTerm}: searchTe
     const [id, setId] = useState(0);
     const [poSearch, setPoSearch] = useState('');
 
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -47,6 +48,9 @@ export default function PurchaseOrdersPage({searchTerm, setSearchTerm}: searchTe
 
         setPoList(prev => [...prev, newPo]);
         setFactory('');
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     }
 
     // Filter purchase orders based on search term
@@ -147,7 +151,9 @@ export default function PurchaseOrdersPage({searchTerm, setSearchTerm}: searchTe
                     <option value="TGI Sagamu">TGI Sagamu</option>
                     <option value="Honeywell Sagamu">Honeywell Sagamu</option>
                 </select>
-                <input type="file" name="purchaseorder" multiple className="reception-uploads-file"
+                <input type="file" name="purchaseorder" multiple 
+                    ref={fileInputRef} 
+                    className="reception-uploads-file"
                     onChange={(event) => {
                         const file = event.target.files?.[0];
                         if (file) {

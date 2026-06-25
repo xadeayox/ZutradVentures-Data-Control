@@ -29,6 +29,7 @@ export default function GRNsPage({searchTerm, setSearchTerm}: searchTermProps) {
     const [id, setId] = useState(0);
     const [grnSearch, setGrnSearch] = useState('');
 
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -47,6 +48,9 @@ export default function GRNsPage({searchTerm, setSearchTerm}: searchTermProps) {
 
         setGrnList(prev => [...prev, newGrn]);
         setFactory('');
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     }
 
     // Filter GRNs based on search term
@@ -147,7 +151,9 @@ export default function GRNsPage({searchTerm, setSearchTerm}: searchTermProps) {
                     <option value="TGI Sagamu">TGI Sagamu</option>
                     <option value="Honeywell Sagamu">Honeywell Sagamu</option>
                 </select>
-                <input type="file" name="grn" multiple className="reception-uploads-file"
+                <input type="file" name="grn" multiple 
+                    ref={fileInputRef}
+                    className="reception-uploads-file"
                     onChange={(event) => {
                         const file = event.target.files?.[0];
                         if (file) {
