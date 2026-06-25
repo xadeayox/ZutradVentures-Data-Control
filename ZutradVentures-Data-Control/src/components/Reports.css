@@ -1,0 +1,17 @@
+.reports-logo-container {
+    position: fixed;
+    right: 5px;
+    top: 170px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.reports-icon {
+    width: 50px;
+}
+
+@media screen and (max-width: 768px) {
+    .reports-icon {
+        width: 30px;
+    }
+}

@@ -1,0 +1,24 @@
+.store-logo-container {
+    position: fixed;
+    right: 5px;
+    top: 110px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.store-icon {
+    width: 60px;
+}
+
+@media screen and (max-width: 768px) {
+    .store-logo-container {
+        position: fixed;
+        right: 5px;
+        top: 120px;
+        cursor: pointer;
+        z-index: 10;
+    }
+    .store-icon {
+        width: 40px;
+    }
+}

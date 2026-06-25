@@ -1,0 +1,39 @@
+.admin-page-contents {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.first-half-content {
+   margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.second-half-content {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.create-user-button:hover {
+    background-color: rgb(255, 144, 144);
+    transform: translateY(-3%);
+}
+
+.check-mark-container {
+    display: flex;
+    align-items: center;
+}
+
+.alert-text {
+    font-size: 12px
+}
+
+@media (max-width: 768px) {
+  .first-half-content, .second-half-content {
+    flex-direction: column;
+    align-items: center;
+  }
+}

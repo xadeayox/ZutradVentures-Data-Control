@@ -1,0 +1,25 @@
+.maintenance-logo-container {
+    position: fixed;
+    right: 5px;
+    top: 273px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.maintenance-icon {
+    width: 50px;
+}
+
+@media screen and (max-width: 768px) {
+    .maintenance-logo-container {
+        position: fixed;
+        right: 5px;
+        top: 245px;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .maintenance-icon {
+        width: 30px;
+    }
+}

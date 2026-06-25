@@ -1,0 +1,19 @@
+html, body {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+header h1, header h2 header h3, h1, h2, h3 {
+    margin: 0px;
+    padding: 0px;
+}
+
+input, button, textarea, select {
+    font: inherit;
+}
+
+body {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;   
+}

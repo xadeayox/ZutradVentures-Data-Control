@@ -1,0 +1,24 @@
+.admin-logo-container {
+    position: fixed;
+    right: 5px;
+    top: 52px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.admin-icon {
+    width: 60px;
+}
+
+@media screen and (max-width: 768px) {
+    .admin-logo-container {
+        position: fixed;
+        right: 5px;
+        top: 75px;
+        cursor: pointer;
+        z-index: 10;
+    }
+    .admin-icon {
+        width: 40px;
+    }
+}

@@ -1,0 +1,48 @@
+.special-roles-container {
+    margin: 5px;
+    background-color: rgb(238, 238, 238);
+    border-radius: 8px;
+    padding: 0.5rem;
+    width: 300px;
+    height: auto;
+    box-shadow: 0 0 8px rgb(99, 99, 99);
+}
+
+.special-roles-header {
+    color: rgb(99, 99, 99);
+    margin: 0px;
+    padding: 0.3rem;
+}
+
+.special-roles-input {
+    min-width: 60%;
+    max-width: 80%;
+    border: 1px solid black;
+}
+
+.special-roles-input, .special-roles-button {
+    border-radius: 8px;
+    padding: 0.5rem;   
+    margin: 1px;
+}
+
+.special-roles-button {
+    border: none;
+    background-color: #FF6060;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s ease-in-out;
+    z-index: 10;
+}
+
+.special-roles-button:hover {
+    background-color: rgb(255, 144, 144);
+    transform: translateY(-3%);
+}
+
+@media screen and (min-width: 1000px) {
+    .special-roles-container {
+        width: 25%;
+    }
+}
