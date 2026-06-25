@@ -11,6 +11,7 @@
 const BASE_URL = 'http://localhost:5000';
 // replace with: http://zutrad-ventures-data-control-env.eba-kpm7wuuy.eu-north-1.elasticbeanstalk.com
 
+
 export async function apiFetch(
     endpoint: string,
     options: RequestInit = {}
