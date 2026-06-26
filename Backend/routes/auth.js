@@ -15,7 +15,9 @@ function generateToken(user) {
         {
             id: user.id,
             role: user.role,
-            email: user.email
+            email: user.email,
+            firstName: user.firstName,
+            surname: user.surname
         },
         process.env.JWT_SECRET,
         { expiresIn: '3h' }     // expires after 3 hours

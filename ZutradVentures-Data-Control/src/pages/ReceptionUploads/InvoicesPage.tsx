@@ -1,6 +1,5 @@
 import { Footer } from "../../components/Footer";
 import { SearchBar } from "../../components/SearchBar"
-import type { invoice } from "../../interface/invoice";
 import { useState, useEffect, useRef } from "react";
 import './ReceptionUploads.css';
 import { HamBurgerLinks } from "../../components/HamBurgerLinks";
@@ -15,74 +14,184 @@ import ReportLogo from '../../assets/images/report-logo.png';
 import PDFLogo from '../../assets/images/pdf-logo.png';
 import msWordLogo from '../../assets/images/msword-logo.png';
 import msExcelLogo from '../../assets/images/msexcel-logo.png';
+import { apiFetch } from "../../api";
 
-interface searchTermProps {
-    searchTerm: string,
-    setSearchTerm: (term: string) => void,
+// ─── Types ────────────────────────────────────────────────────────────────────
+// Matches the shape returned by GET /api/invoices
+interface InvoiceRecord {
+    id: number;
+    clientId: number | null;
+    clientName: string | null;
+    uploadedBy: string;
+    fileName: string;
+    storedFileName: string;
+    mimeType: string | null;
+    fileSize: number | null;
+    createdAt: string;
 }
 
-export default function InvoicesPage({searchTerm, setSearchTerm}: searchTermProps) {
-    const [factory, setFactory] = useState('');
-    const [invoiceList, setInvoiceList] = useState<invoice[]>([]);
-    const [file, setFile] = useState<File[]>([]);
-    const [preview, setPreview] = useState<string | null>(null);
-    const [id, setId] = useState(0);
+interface ClientOption {
+    id: number;
+    companyName: string;
+}
+
+interface SearchTermProps {
+    searchTerm: string;
+    setSearchTerm: (term: string) => void;
+}
+
+// ─── Logo helper ──────────────────────────────────────────────────────────────
+function fileLogo(fileName: string): string {
+    const ext = fileName.split('.').pop()?.toLowerCase() ?? '';
+    if (ext === 'pdf')                      return PDFLogo;
+    if (ext === 'doc' || ext === 'docx')    return msWordLogo;
+    if (ext === 'xls' || ext === 'xlsx')    return msExcelLogo;
+    return ReportLogo;
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermProps) {
+    const [clients, setClients]               = useState<ClientOption[]>([]);
+    const [selectedClientId, setSelectedClientId] = useState<number | ''>('');
+    const [invoiceList, setInvoiceList]       = useState<InvoiceRecord[]>([]);
     const [invoiceSearch, setInvoiceSearch] = useState('');
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [uploading, setUploading]       = useState(false);
+    const [error, setError]               = useState<string | null>(null);
 
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const bottomRef = useRef<HTMLDivElement | null>(null);
+    const bottomRef    = useRef<HTMLDivElement | null>(null);
 
+    // ── Scroll to bottom whenever list changes ────────────────────────────
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [invoiceList]);
 
-    function saveInvoice() {
-        const newId = id +1;
-        setId(newId);
-        const newInvoice:invoice = {
-            id: newId,
-            clientFactory: factory,
-            uploadedBy: 'Super Admin',
-            files: file
-        }
+    // ── Fetch clients for the dropdown and invoices on mount ─────────────
+    useEffect(() => {
+        fetchClients();
+        fetchInvoices();
+    }, []);
 
-        setInvoiceList(prev=> [...prev, newInvoice]);
-        setFactory('');
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
+    async function fetchClients() {
+        try {
+            const res  = await apiFetch('/api/invoices/clients');
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setClients(data.clients);
+        } catch {
+            console.error('Could not load clients for dropdown.');
         }
     }
 
-    // Filter invoices based on search term
-    const filteredInvoices = invoiceList.filter((invoice) => {
-        const search = invoiceSearch.toLowerCase();
+    async function fetchInvoices(search = '') {
+        try {
+            const query = search ? `?search=${encodeURIComponent(search)}` : '';
+            const res   = await apiFetch(`/api/invoices${query}`);
+            if (!res.ok) throw new Error('Failed to load invoices.');
+            const data  = await res.json();
+            setInvoiceList(data.invoices);
+        } catch (err) {
+            console.error(err);
+            setError('Could not load invoices.');
+        }
+    }
 
-        // Check factory name
-        const matchesFactory = invoice.clientFactory.toLowerCase().includes(search);
+    async function saveInvoice() {
+        if (!selectedFile || !selectedClientId) return;
 
-        // Check file names and extensions
-        const matchesFile = invoice.files.some((file) => {
-            const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
-            return (
-                file.name.toLowerCase().includes(search) ||
-                fileExtension.includes(search)
-            );
-        });
+        setUploading(true);
+        setError(null);
 
-        return matchesFactory || matchesFile;
-    });
+        try {
+            const formData = new FormData();
+            formData.append('clientId', String(selectedClientId));
+            formData.append('invoice', selectedFile);
 
+            const res = await apiFetch('/api/invoices', {
+                method: 'POST',
+                body: formData
+            });
 
-    return(
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.message || 'Upload failed.');
+            }
+
+            await fetchInvoices(invoiceSearch);
+            setSelectedClientId('');
+            setSelectedFile(null);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Upload failed.');
+        } finally {
+            setUploading(false);
+        }
+    }
+
+    // ── Download ──────────────────────────────────────────────────────────
+    // Fetches the file as a blob, then triggers a browser download —
+    // this keeps the Authorization header in the request (a plain <a href>
+    // would not send it).
+    async function downloadInvoice(invoice: InvoiceRecord) {
+        try {
+            const res = await apiFetch(`/api/invoices/${invoice.id}/download`);
+            if (!res.ok) throw new Error('Download failed.');
+
+            const blob = await res.blob();
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href     = url;
+            a.download = invoice.fileName;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error(err);
+            setError('Could not download file.');
+        }
+    }
+
+    // ── Delete ────────────────────────────────────────────────────────────
+    async function deleteInvoice(id: number) {
+        if (!window.confirm('Delete this invoice?')) return;
+        try {
+            const res = await apiFetch(`/api/invoices/${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.message || 'Delete failed.');
+            }
+            setInvoiceList(prev => prev.filter(inv => inv.id !== id));
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Delete failed.');
+        }
+    }
+
+    // ── Local search (debounced via re-fetch) ─────────────────────────────
+    function handleSearchChange(term: string) {
+        setInvoiceSearch(term);
+        fetchInvoices(term);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    return (
         <div className="invoices-container reception-uploads-container">
             <title>Invoices</title>
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
+            {error && (
+                <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>
+            )}
+
             <div className="reception-uploads-search-container">
                 <input
                     type="text"
                     placeholder="search documents..."
                     className="reception-uploads-search"
-                    onChange={(event) => setInvoiceSearch(event.target.value)}
+                    value={invoiceSearch}
+                    onChange={(e) => handleSearchChange(e.target.value)}
                 />
                 <img
                     className="reception-uploads-search-icon"
@@ -90,89 +199,95 @@ export default function InvoicesPage({searchTerm, setSearchTerm}: searchTermProp
                     src={SearchIcon}
                 />
             </div>
+
             <div className="invoices-list-container reception-uploads-list-container">
-                <h3 
+                <h3
                     className="reception-uploads-header"
-                    style={{display: invoiceList.length === 0 ? 'block' : 'none'}}
+                    style={{ display: invoiceList.length === 0 ? 'block' : 'none' }}
                 >
-                    Upload Invoice to get started
+                    Upload an Invoice to get started
                 </h3>
-                {filteredInvoices.map((invoice)=> {
-                    return(
-                        <div className="invoices-card reception-uploads-card" key={invoice.id}>
-                            <h3 className="reception-uploads-header">{invoice.clientFactory}</h3>
-                            <p>
-                                {invoice.files.map((file, index) => {
-                                    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-                                    return <img 
-                                        key={index} 
-                                        src={fileExtension === 'pdf' ? PDFLogo :
-                                            fileExtension === 'docx' ? msWordLogo :
-                                            fileExtension === 'doc' ? msWordLogo :
-                                            fileExtension === 'xlsx' ? msExcelLogo :
-                                            fileExtension === 'xls' ? msExcelLogo :
-                                            ReportLogo
-                                        } 
-                                        alt={file.name} 
-                                        className="reception-uploads-document-preview"
-                                    />;
-                                })}
-                            </p>
-                            <p>
-                                {invoice.files.map((file, index) => (
-                                    <span key={index}>{file.name}</span>
-                                ))}
-                            </p>
-                            <p>
-                                {invoice.files.map((file, index) => {
-                                    const url = URL.createObjectURL(file);
-                                    return (
-                                    <a key={index} href={url} download={file.name} className="report-uploads-download-file">
-                                        Download File
-                                    </a>
-                                    );
-                                })}
-                            </p>
-                            <p className="invoices-poster reception-uploads-poster">
-                                posted by: Super Admin
-                            </p>
-                        </div>
-                    )
-                })}
+
+                {invoiceList.map((invoice) => (
+                    <div className="invoices-card reception-uploads-card" key={invoice.id}>
+                        <h3 className="reception-uploads-header">
+                            {invoice.clientName ?? 'Unknown Client'}
+                        </h3>
+
+                        {/* File type icon */}
+                        <p>
+                            <img
+                                src={fileLogo(invoice.fileName)}
+                                alt={invoice.fileName}
+                                className="reception-uploads-document-preview"
+                            />
+                        </p>
+
+                        {/* File name */}
+                        <p>{invoice.fileName}</p>
+
+                        {/* Download button — hits the authenticated backend endpoint */}
+                        <p>
+                            <button
+                                onClick={() => downloadInvoice(invoice)}
+                                className="report-uploads-download-file"
+                            >
+                                Download File
+                            </button>
+                        </p>
+
+                        {/* Delete button */}
+                        <p>
+                            <button
+                                onClick={() => deleteInvoice(invoice.id)}
+                                className="report-uploads-download-file"
+                            >
+                                Delete File
+                            </button>
+                        </p>
+
+                        <p className="invoices-poster reception-uploads-poster">
+                            posted by: {invoice.uploadedBy}
+                        </p>
+                    </div>
+                ))}
             </div>
+
             <div ref={bottomRef}></div>
+
+            {/* ── Upload form ─────────────────────────────────────────── */}
             <div className="invoices-input-container reception-input-container">
-                <select title="selection" 
-                    className="reception-input-select-factory" 
-                    value={factory}
-                    onChange={(event)=> {
-                        setFactory(event.target.value)
-                    }}
+                <select
+                    title="selection"
+                    className="reception-input-select-factory"
+                    value={selectedClientId}
+                    onChange={(e) => setSelectedClientId(Number(e.target.value))}
                 >
-                    <option value="" disabled>Select Factory</option>
-                    <option value="NBC IKEJA">NBC IKEJA</option>
-                    <option value="TGI Sagamu">TGI Sagamu</option>
-                    <option value="Honeywell Sagamu">Honeywell Sagamu</option>
+                    <option value="" disabled>Select Client</option>
+                    {clients.map((client) => (
+                        <option key={client.id} value={client.id}>
+                            {client.companyName}
+                        </option>
+                    ))}
                 </select>
-                <input type="file" name="invoice" multiple 
-                    className="reception-uploads-file" 
-                    ref={fileInputRef} 
-                    onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file) {
-                            setFile([file]);
-                            setPreview(URL.createObjectURL(file));
-                        }
-                    }}
+
+                <input
+                    type="file"
+                    name="invoice"
+                    className="reception-uploads-file"
+                    ref={fileInputRef}
+                    onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
                 />
-                <button 
+
+                <button
                     className="reception-uploads-button invoice-save-button"
                     onClick={saveInvoice}
-                    disabled={!preview || !factory}
+                    disabled={!selectedFile || !selectedClientId || uploading}
                 >
-                    Save
+                    {uploading ? 'Uploading…' : 'Save'}
                 </button>
             </div>
+
             <HamBurgerLinks />
             <Administrator />
             <Store />

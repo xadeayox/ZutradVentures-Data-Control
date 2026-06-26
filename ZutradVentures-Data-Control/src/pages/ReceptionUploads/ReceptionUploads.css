@@ -78,6 +78,7 @@
     cursor: pointer;
     color: rgb(255, 68, 68);
     font-style: italic;
+    border: none;
 }
 
 .reception-uploads-search-container {
