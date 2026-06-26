@@ -86,8 +86,12 @@ export default function App() {
           <GrnsPage searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
           </ProtectedRoute>
         }/>
-        <Route path='/purchaseorders' element={<PurchaseOrdersPage searchTerm={searchTerm} 
-          setSearchTerm={setSearchTerm} />}/>
+        <Route path='/purchaseorders' 
+          element={
+            <ProtectedRoute page="invoices">
+          <PurchaseOrdersPage searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
+          </ProtectedRoute>
+        }/>
         <Route path='/quotations' 
           element={<ProtectedRoute page="invoices">
             <QuotationsPage searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>

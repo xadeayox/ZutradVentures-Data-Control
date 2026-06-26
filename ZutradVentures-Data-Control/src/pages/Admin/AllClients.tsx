@@ -171,7 +171,7 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
             <div className="sub-search-container">
                 <input
                     type="text"
-                    placeholder="search client, machine or serial..."
+                    placeholder="search client..."
                     className="sub-search"
                     value={clientSearch}
                     onChange={(e) => setClientSearch(e.target.value)}
