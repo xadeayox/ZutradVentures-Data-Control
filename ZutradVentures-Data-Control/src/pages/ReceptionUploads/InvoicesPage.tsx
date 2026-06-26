@@ -188,7 +188,7 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
             <div className="reception-uploads-search-container">
                 <input
                     type="text"
-                    placeholder="search documents..."
+                    placeholder="search invoices..."
                     className="reception-uploads-search"
                     value={invoiceSearch}
                     onChange={(e) => handleSearchChange(e.target.value)}

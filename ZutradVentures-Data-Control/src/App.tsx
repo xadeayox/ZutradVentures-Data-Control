@@ -88,7 +88,12 @@ export default function App() {
         }/>
         <Route path='/purchaseorders' element={<PurchaseOrdersPage searchTerm={searchTerm} 
           setSearchTerm={setSearchTerm} />}/>
-        <Route path='/quotations' element={<QuotationsPage searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>}/>
+        <Route path='/quotations' 
+          element={<ProtectedRoute page="invoices">
+            <QuotationsPage searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
+          </ProtectedRoute>
+          }
+        />
 
         {/* ── Admin + special permission only ── */}
         <Route path='/store' element={

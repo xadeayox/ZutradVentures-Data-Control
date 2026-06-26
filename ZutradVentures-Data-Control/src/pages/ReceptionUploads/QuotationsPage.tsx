@@ -1,6 +1,5 @@
 import { Footer } from "../../components/Footer";
-import { SearchBar } from "../../components/SearchBar"
-import type { quotation } from "../../interface/quotation";
+import { SearchBar } from "../../components/SearchBar";
 import { useState, useEffect, useRef } from "react";
 import './ReceptionUploads.css';
 import { HamBurgerLinks } from "../../components/HamBurgerLinks";
@@ -15,71 +14,204 @@ import ReportLogo from '../../assets/images/report-logo.png';
 import PDFLogo from '../../assets/images/pdf-logo.png';
 import msWordLogo from '../../assets/images/msword-logo.png';
 import msExcelLogo from '../../assets/images/msexcel-logo.png';
+import { apiFetch } from '../../api';
 
-interface searchTermProps {
-    searchTerm: string,
-    setSearchTerm: (term: string) => void,
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface QuotationRecord {
+    id: number;
+    fileName: string;
+    storedName: string;
+    mimeType: string;
+    clientFactory: string;   // "Unknown Client" if the client was deleted
+    uploadedBy: string;
+    createdAt: string;
 }
 
-export default function QuotationsPage({searchTerm, setSearchTerm}: searchTermProps) {
-    const [factory, setFactory] = useState('');
-    const [quotationList, setQuotationList] = useState<quotation[]>([]);
-    const [file, setFile] = useState<File[]>([]);
-    const [preview, setPreview] = useState<string | null>(null);
-    const [id, setId] = useState(0);
-    const [quotationSearch, setQuotationSearch] = useState('');
+interface ClientOption {
+    id: number;
+    companyName: string;
+}
 
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const bottomRef = useRef<HTMLDivElement | null>(null);
+interface SearchTermProps {
+    searchTerm: string;
+    setSearchTerm: (term: string) => void;
+}
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function getFileLogo(fileName: string): string {
+    const ext = fileName.split('.').pop()?.toLowerCase() ?? '';
+    if (ext === 'pdf')  return PDFLogo;
+    if (ext === 'docx' || ext === 'doc') return msWordLogo;
+    if (ext === 'xlsx' || ext === 'xls') return msExcelLogo;
+    return ReportLogo;
+}
+
+export default function QuotationsPage({searchTerm, setSearchTerm}: SearchTermProps) {
+    const [quotationList, setQuotationList]       = useState<QuotationRecord[]>([]);
+const [clients, setClients]                   = useState<ClientOption[]>([]);
+const [selectedClientId, setSelectedClientId] = useState('');
+const [files, setFiles]                       = useState<File[]>([]);
+const [quotationSearch, setQuotationSearch]   = useState('');
+const [uploading, setUploading]               = useState(false);
+const [error, setError]                       = useState<string | null>(null);
+
+const fileInputRef = useRef<HTMLInputElement | null>(null);
+const bottomRef    = useRef<HTMLDivElement | null>(null);
+
+// ── On mount: load existing Quotations and client list from backend ───────────
+    useEffect(() => {
+        fetchQuotations();
+        fetchClients();
+    }, []);
+
+    // Auto-scroll to bottom whenever a new quotation is added
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [quotationList]);
 
-    function saveQuotation() {
-        const newId = id + 1;
-        setId(newId);
-        const newQuotation: quotation = {
-            id: newId,
-            clientFactory: factory,
-            uploadedBy: 'Super Admin',
-            files: file
-        }
-
-        setQuotationList(prev => [...prev, newQuotation]);
-        setFactory('');
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
+    async function fetchQuotations() {
+        try {
+            const res = await apiFetch('/api/quotations');
+            if (res.ok) {
+                const data = await res.json();
+                setQuotationList(data.quotations);
+            }
+        } catch (err) {
+            console.error('Failed to load quotations:', err);
         }
     }
 
-    // Filter quotations based on search term
-    const filteredQuotations = quotationList.filter((quotation) => {
+    async function fetchClients() {
+        try {
+            const res = await apiFetch('/api/clients');
+            if (res.ok) {
+                const data = await res.json();
+                // Expecting { clients: [{ id, companyName, ... }] }
+                setClients(data.clients ?? []);
+            }
+        } catch (err) {
+            console.error('Failed to load clients:', err);
+        }
+    }
+
+    // ── Upload Quotation files ────────────────────────────────────────────────────
+    async function saveQuotation() {
+        setError(null);
+
+        if (!selectedClientId) {
+            setError('Please select a client factory.');
+            return;
+        }
+        if (files.length === 0) {
+            setError('Please attach at least one file.');
+            return;
+        }
+
+        setUploading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('clientId', selectedClientId);
+            files.forEach(f => formData.append('files', f));
+
+            const res = await apiFetch('/api/quotations', {
+                method: 'POST',
+                body: formData
+                // Do NOT set Content-Type — apiFetch detects FormData and leaves it for the browser
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.message ?? 'Upload failed. Please try again.');
+                return;
+            }
+
+            // Refresh list from backend so we get server-assigned IDs and timestamps
+            await fetchQuotations();
+
+            // Reset form
+            setSelectedClientId('');
+            setFiles([]);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+
+        } catch (err) {
+            console.error('Upload Quotation error:', err);
+            setError('Network error. Please check your connection.');
+        } finally {
+            setUploading(false);
+        }
+    }
+
+    // ── Download: request through the backend so auth is enforced ────────────────
+    async function downloadQuotationFile(storedName: string, fileName: string) {
+        try {
+            const res = await apiFetch(`/api/quotations/download/${encodeURIComponent(storedName)}`);
+
+            if (!res.ok) {
+                alert('Download failed. The file may have been removed.');
+                return;
+            }
+
+            // Convert response to a Blob and trigger a browser download
+            const blob = await res.blob();
+            const url  = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href     = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+
+        } catch (err) {
+            console.error('Download quotation error:', err);
+            alert('Download failed. Please try again.');
+        }
+    }
+
+    // ── Delete ────────────────────────────────────────────────────────────
+    async function deleteQuotation(id: number) {
+        if (!window.confirm('Delete this quotation?')) return;
+        try {
+            const res = await apiFetch(`/api/quotations/${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.message || 'Delete failed.');
+            }
+            setQuotationList(prev => prev.filter(q => q.id !== id));
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Delete failed.');
+        }
+    }
+
+    // ── Filter Quotations by search term ─────────────────────────────────────────
+    const filteredQuotations = quotationList.filter(quotation => {
         const search = quotationSearch.toLowerCase();
-
-        const matchesFactory = quotation.clientFactory.toLowerCase().includes(search);
-
-        const matchesFile = quotation.files.some((file) => {
-            const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
-            return (
-                file.name.toLowerCase().includes(search) ||
-                fileExtension.includes(search)
-            );
-        });
-
-        return matchesFactory || matchesFile;
+        return (
+            quotation.clientFactory.toLowerCase().includes(search) ||
+            quotation.fileName.toLowerCase().includes(search) ||
+            quotation.uploadedBy.toLowerCase().includes(search)
+        );
     });
 
+    // ─── Render ────────────────────────────────────────────────────────────────
     return (
         <div className="quotations-container reception-uploads-container">
             <title>Quotations</title>
+
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
+            {/* Local quotation search */}
             <div className="reception-uploads-search-container">
                 <input
                     type="text"
                     placeholder="search quotations..."
                     className="reception-uploads-search"
-                    onChange={(event) => setQuotationSearch(event.target.value)}
+                    value={quotationSearch}
+                    onChange={e => setQuotationSearch(e.target.value)}
                 />
                 <img
                     className="reception-uploads-search-icon"
@@ -87,89 +219,108 @@ export default function QuotationsPage({searchTerm, setSearchTerm}: searchTermPr
                     src={SearchIcon}
                 />
             </div>
+
+            {/* Quotation list */}
             <div className="quotations-list-container reception-uploads-list-container">
-                <h3
-                    className="reception-uploads-header"
-                    style={{ display: quotationList.length === 0 ? 'block' : 'none' }}
-                >
-                    Upload Quotation to get started
-                </h3>
-                {filteredQuotations.map((quotation) => {
-                    return (
-                        <div className="quotations-card reception-uploads-card" key={quotation.id}>
-                            <h3 className="reception-uploads-header">{quotation.clientFactory}</h3>
-                            <p>
-                                {quotation.files.map((file, index) => {
-                                    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-                                    return <img
-                                        key={index}
-                                        src={fileExtension === 'pdf' ? PDFLogo :
-                                            fileExtension === 'docx' ? msWordLogo :
-                                            fileExtension === 'doc' ? msWordLogo :
-                                            fileExtension === 'xlsx' ? msExcelLogo :
-                                            fileExtension === 'xls' ? msExcelLogo :
-                                            ReportLogo
-                                        }
-                                        alt={file.name}
-                                        className="reception-uploads-document-preview"
-                                    />;
-                                })}
-                            </p>
-                            <p>
-                                {quotation.files.map((file, index) => (
-                                    <span key={index}>{file.name}</span>
-                                ))}
-                            </p>
-                            <p>
-                                {quotation.files.map((file, index) => {
-                                    const url = URL.createObjectURL(file);
-                                    return (
-                                        <a key={index} href={url} download={file.name} className="report-uploads-download-file">
-                                            Download File
-                                        </a>
-                                    );
-                                })}
-                            </p>
-                            <p className="quotations-poster reception-uploads-poster">
-                                posted by: Super Admin
-                            </p>
-                        </div>
-                    )
-                })}
+                {quotationList.length === 0 && (
+                    <h3 className="reception-uploads-header">
+                        Upload a quotation to get started
+                    </h3>
+                )}
+
+                {filteredQuotations.map(quotation => (
+                    <div className="quotations-card reception-uploads-card" key={quotation.id}>
+                        <h3 className="reception-uploads-header">
+                            {quotation.clientFactory}
+                        </h3>
+
+                        {/* File type icon */}
+                        <p>
+                            <img
+                                src={getFileLogo(quotation.fileName)}
+                                alt={quotation.fileName}
+                                className="reception-uploads-document-preview"
+                            />
+                        </p>
+
+                        {/* File name */}
+                        <p>{quotation.fileName}</p>
+
+                        {/* Download button — goes through the backend with auth */}
+                        <p>
+                            <button
+                                className="report-uploads-download-file"
+                                onClick={() => downloadQuotationFile(quotation.storedName, quotation.fileName)}
+                            >
+                                Download File
+                            </button>
+                        </p>
+                        <p>
+                            <button
+                                onClick={() => deleteQuotation(quotation.id)}
+                                className="report-uploads-download-file"
+                            >
+                                Delete File
+                            </button>
+                        </p>
+
+                        <p className="quotations-poster reception-uploads-poster">
+                            posted by: {quotation.uploadedBy}
+                        </p>
+                    </div>
+                ))}
             </div>
-            <div ref={bottomRef}></div>
+
+            <div ref={bottomRef} />
+
+            {/* Error message */}
+            {error && (
+                <p style={{ color: 'red', textAlign: 'center', margin: '8px 0' }}>
+                    {error}
+                </p>
+            )}
+
+            {/* Upload form */}
             <div className="quotations-input-container reception-input-container">
-                <select title="selection"
+                {/* Client dropdown populated from the database */}
+                <select
+                    title="Select client factory"
                     className="reception-input-select-factory"
-                    value={factory}
-                    onChange={(event) => {
-                        setFactory(event.target.value)
-                    }}
+                    value={selectedClientId}
+                    onChange={e => setSelectedClientId(e.target.value)}
                 >
                     <option value="" disabled>Select Factory</option>
-                    <option value="NBC IKEJA">NBC IKEJA</option>
-                    <option value="TGI Sagamu">TGI Sagamu</option>
-                    <option value="Honeywell Sagamu">Honeywell Sagamu</option>
+                    {clients.map(client => (
+                        <option key={client.id} value={client.id}>
+                            {client.companyName}
+                        </option>
+                    ))}
                 </select>
-                <input type="file" name="quotation" multiple 
-                    ref={fileInputRef} 
+
+                {/* File picker — accepts PDF, Word, Excel; multiple files */}
+                <input
+                    type="file"
+                    name="quotation"
+                    multiple
+                    accept=".pdf,.doc,.docx,.xls,.xlsx"
+                    ref={fileInputRef}
                     className="reception-uploads-file"
-                    onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file) {
-                            setFile([file]);
-                            setPreview(URL.createObjectURL(file));
+                    onChange={e => {
+                        if (e.target.files) {
+                            setFiles(Array.from(e.target.files));
                         }
                     }}
                 />
+
                 <button
                     className="reception-uploads-button quotation-save-button"
                     onClick={saveQuotation}
-                    disabled={!preview || !factory}
+                    disabled={uploading || files.length === 0 || !selectedClientId}
                 >
-                    Save
+                    {uploading ? 'Uploading…' : 'Save'}
                 </button>
             </div>
+
             <HamBurgerLinks />
             <Administrator />
             <Store />
@@ -180,4 +331,7 @@ export default function QuotationsPage({searchTerm, setSearchTerm}: searchTermPr
             <Footer />
         </div>
     );
+
+
+    
 }

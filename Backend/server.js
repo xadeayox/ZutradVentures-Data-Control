@@ -13,6 +13,7 @@ const supplyRoutes = require('./routes/supply');
 const storeRoutes = require('./routes/store');
 const invoiceRoutes = require('./routes/invoices');
 const grnRoutes = require('./routes/grns');
+const quotationRoutes= require('./routes/quotations');
 
 // Import all models so Sequelize syncs all tables on startup
 require('./models/User');
@@ -25,6 +26,7 @@ require('./models/Supply');
 require('./models/StoreItem');
 require('./models/Invoice');
 require('./models/Grn');
+require('./models/Quotation');
 
 const app = express();
 
@@ -53,6 +55,7 @@ app.use('/api/supply', supplyRoutes);
 app.use('/api/store', storeRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/grns', grnRoutes);
+app.use('/api/quotations', quotationRoutes)
 
     // ─── Catch-all for React Router ───────────────────────────────────────────────
 app.get('*', (req, res) => {
