@@ -6,7 +6,6 @@ import { Maintenance } from "../../components/Maintenance";
 import { Reports } from "../../components/Reports";
 import { Clients } from "../../components/Clients";
 import { Administrator } from "../../components/Administrator";
-import SearchLogo from '../../assets/images/search-icon.png';
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../api";
 import './AllSubPage.css';
@@ -39,7 +38,6 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
 
     const [clients, setClients] = useState<Client[]>([]);
     const [filteredClients, setFilteredClients] = useState<Client[]>([]);
-    const [clientSearch, setClientSearch] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -132,7 +130,7 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
     }
 
     useEffect(() => {
-        const query = clientSearch.toLowerCase().trim();
+        const query = searchTerm.toLowerCase().trim();
 
         if (!query) {
             setFilteredClients(clients);
@@ -157,7 +155,7 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
 
         setFilteredClients(filtered);
 
-    }, [clientSearch, clients]);
+    }, [searchTerm, clients]);
 
     return (
         <div className="all-sub-page-container">
@@ -167,22 +165,6 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
             />
-
-            <div className="sub-search-container">
-                <input
-                    type="text"
-                    placeholder="search client..."
-                    className="sub-search"
-                    value={clientSearch}
-                    onChange={(e) => setClientSearch(e.target.value)}
-                />
-
-                <img
-                    className="sub-search-icon"
-                    src={SearchLogo}
-                    alt="search"
-                />
-            </div>
 
             <div className="all-sub-page-contents">
 

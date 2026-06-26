@@ -17,10 +17,6 @@ export function SearchBar({searchTerm, setSearchTerm}: searchTermProps) {
     const storedUser = localStorage.getItem('user');
     const currentUser = storedUser ? JSON.parse(storedUser) : null;
 
-    function searchMachine() {
-        navigate('/clients');
-    }
-
     function logoutUser() {
          localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -42,17 +38,11 @@ export function SearchBar({searchTerm, setSearchTerm}: searchTermProps) {
                     onChange={(event)=> {
                         setSearchTerm(event.target.value);
                     }}
-                    onKeyDown={(event)=> {
-                        if(event.key === 'Enter') {
-                            searchMachine();
-                        }
-                    }}
                 />
                 <img
                     src={searchLogo}
                     className="search-logo"
                     alt="Search"
-                    onClick={searchMachine}
                 />
             </div>
          

@@ -2,31 +2,6 @@
     height: 100vh;
 }
 
-.sub-search-container {
-    position: relative;
-    display: inline-block;
-    margin-top: 5px;
-    margin-left: 10px;
-}
-
-.sub-search {
-    width: 250px;
-    padding: 8px 40px 8px 10px;
-    border: none;
-    border-radius: 8px;
-    box-shadow: 0 0 4px #820000;
-}
-
-.sub-search-icon {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-}
-
 .all-sub-page-contents {
     display: flex;
     flex-wrap: wrap;

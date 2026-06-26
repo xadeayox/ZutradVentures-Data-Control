@@ -146,4 +146,13 @@
     .store-input-name {
         max-width: 100%;
     }
+
+    .toggle-input-store {
+        width: 50px;
+        background-color: rgb(233, 233, 233);
+        margin-left: 5px;
+        border-radius: 100px;
+        position: fixed;
+        bottom: 350px;
+    }
 }

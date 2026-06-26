@@ -6,7 +6,6 @@ import { Maintenance } from "../../components/Maintenance";
 import { Reports } from "../../components/Reports";
 import { Clients } from "../../components/Clients";
 import { Administrator } from "../../components/Administrator";
-import SearchLogo from '../../assets/images/search-icon.png';
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../api";
 import './AllSubPage.css';
@@ -37,7 +36,6 @@ export default function AllUsers({
 
     const [users, setUsers] = useState<User[]>([]);
     const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-    const [userSearch, setUserSearch] = useState('');
     const [loading, setLoading] = useState(true);
 
     const currentUser = JSON.parse(
@@ -49,12 +47,12 @@ export default function AllUsers({
     }, []);
 
 useEffect(() => {
-        if (!userSearch.trim()) {
+        if (!searchTerm.trim()) {
             setFilteredUsers(users);
             return;
         }
 
-        const query = userSearch.toLowerCase();
+        const query = searchTerm.toLowerCase();
 
         const filtered = users.filter(user =>
             `${user.firstName} ${user.surname}`
@@ -64,7 +62,7 @@ useEffect(() => {
         );
 
         setFilteredUsers(filtered);
-    }, [userSearch, users]);
+    }, [searchTerm, users]);
 
     async function fetchUsers() {
         try {
@@ -135,24 +133,6 @@ useEffect(() => {
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
             />
-
-            <div className="sub-search-container">
-                <input
-                    type="text"
-                    placeholder="search user..."
-                    className="sub-search"
-                    value={userSearch}
-                    onChange={(event) => {
-                        setUserSearch(event.target.value);
-                    }}
-                />
-
-                <img
-                    className="sub-search-icon"
-                    src={SearchLogo}
-                    alt="search"
-                />
-            </div>
 
             <div className="all-sub-page-contents">
 

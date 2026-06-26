@@ -164,13 +164,16 @@ export default function ReportsPage({ searchTerm, setSearchTerm }: SearchTermPro
         (report.client?.companyName ?? 'Unknown Client')
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-        report.reportDetails.toLowerCase().includes(searchTerm.toLowerCase())
+            report.reportDetails.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            String(report.lineNumber).includes(searchTerm)
     );
 
     return (
         <div>
             <title>Reports</title>
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            <div className="sub-search-container">
+            </div>
             <div className="reports-container">
                 <div className="reports-messages">
                     <h3 className="reports-header" style={{ display: reports.length === 0 ? 'block' : 'none' }}>
