@@ -173,6 +173,11 @@
     background-color: rgb(255, 144, 144);
 }
 
+.report-button-delete {
+    color: red;
+    background-color: rgb(238, 238, 238);
+}
+
 @media screen and (max-width: 768px) {
     .report-button {
         font-size: 10px;

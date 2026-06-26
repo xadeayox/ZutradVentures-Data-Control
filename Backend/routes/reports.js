@@ -181,6 +181,24 @@ router.patch('/:id/status', protect, restrictTo('administrator'), async (req, re
     }
 });
 
+// ─── DELETE /api/reports/:id ──────────────────────────────────────────
+router.delete('/:id', protect, restrictTo('administrator'), async (req, res) => {
+    try {
+        const item = await Report.findByPk(parseInt(req.params.id, 10));
+        if (!item) {
+            return res.status(404).json({ message: 'Report not found.' });
+        }
+
+        await item.destroy();
+
+        res.status(200).json({ message: 'Report deleted.' });
+
+    } catch (error) {
+        console.error('Delete store item error:', error);
+        res.status(500).json({ message: 'Server error. Please try again.' });
+    }
+});
+
 
 // ─── Static file serving ──────────────────────────────────────────────────────
 // This makes uploaded images accessible via a URL.

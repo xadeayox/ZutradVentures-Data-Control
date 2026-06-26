@@ -4,9 +4,11 @@ import { MaintenanceMessage } from "./MaintenanceMessage";
 interface MaintenanceMessagesProps {
     maintenanceLogs: MaintenanceData[];
     onMarkDone: () => void;     // re-fetches logs after marking as done
+    onStatusChange: () => void;
+    onDelete: (id: number) => void; 
 }
 
-export function MaintenanceMessages({ maintenanceLogs, onMarkDone }: MaintenanceMessagesProps) {
+export function MaintenanceMessages({ maintenanceLogs, onMarkDone, onDelete }: MaintenanceMessagesProps) {
     return (
         <>
             {maintenanceLogs.map((log) => (
@@ -14,6 +16,7 @@ export function MaintenanceMessages({ maintenanceLogs, onMarkDone }: Maintenance
                     key={log.id}
                     maintenanceLog={log}
                     onMarkDone={onMarkDone}
+                    onDelete={onDelete}
                 />
             ))}
         </>

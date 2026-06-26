@@ -13,7 +13,6 @@ import { Footer } from "../../components/Footer";
 import ArrowUp from '../../assets/images/up-arrow.png';
 import ArrowDown from '../../assets/images/down-arrow.png';
 import { apiFetch } from "../../api";
-import { HamBurgerLinks } from "../../components/HamBurgerLinks";
 
 interface SearchTermProps {
     searchTerm: string,
@@ -42,6 +41,7 @@ export default function MaintenancePage({ searchTerm, setSearchTerm }: SearchTer
     useEffect(() => {
         fetchLogs();
         fetchClients();
+        fetchMaintenance();
     }, []);
 
     useEffect(() => {
@@ -55,6 +55,16 @@ export default function MaintenancePage({ searchTerm, setSearchTerm }: SearchTer
             if (response.ok) setMaintenanceLogs(data.logs);
         } catch (err) {
             console.error('Failed to fetch maintenance logs:', err);
+        }
+    }
+
+    async function fetchMaintenance() {
+        try {
+            const response = await apiFetch('/api/reports');
+            const data = await response.json();
+            if (response.ok) setMaintenanceDay(data.maintenance);
+        } catch (err) {
+            console.error('Failed to fetch reports:', err);
         }
     }
 
@@ -101,7 +111,7 @@ export default function MaintenancePage({ searchTerm, setSearchTerm }: SearchTer
             setTimeout(() => setAlertMessage(false), 2000);
 
         } catch (err) {
-            setError('Could not connect to the server.');
+            setError(`${err}: Could not connect to the server.`);
         }
 
         setLoading(false);
@@ -125,6 +135,8 @@ export default function MaintenancePage({ searchTerm, setSearchTerm }: SearchTer
                     <MaintenanceMessages
                         maintenanceLogs={filteredLogs}
                         onMarkDone={fetchLogs}
+                        onStatusChange={fetchLogs}
+                        onDelete={(id) => setMaintenanceLogs(prev => prev.filter(log => log.id !== id))}
                     />
                     <div ref={bottomRef}></div>
                 </div>

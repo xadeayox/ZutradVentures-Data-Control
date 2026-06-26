@@ -2,7 +2,7 @@ const express = require('express');
 const Supply = require('../models/Supply');
 const Client = require('../models/Client');
 const User = require('../models/User');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, restrictTo } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -104,6 +104,24 @@ router.post('/', protect, async (req, res) => {
 
     } catch (error) {
         console.error('Create supply error:', error);
+        res.status(500).json({ message: 'Server error. Please try again.' });
+    }
+});
+
+// ─── DELETE /api/supply/:id ──────────────────────────────────────────
+router.delete('/:id', protect, restrictTo('administrator'), async (req, res) => {
+    try {
+        const item = await Supply.findByPk(parseInt(req.params.id, 10));
+        if (!item) {
+            return res.status(404).json({ message: 'Supply not found.' });
+        }
+
+        await item.destroy();
+
+        res.status(200).json({ message: 'Supply deleted.' });
+
+    } catch (error) {
+        console.error('Delete supply error:', error);
         res.status(500).json({ message: 'Server error. Please try again.' });
     }
 });

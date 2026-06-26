@@ -43,6 +43,7 @@ export default function ReportsPage({ searchTerm, setSearchTerm }: SearchTermPro
     const [error, setError] = useState('');
 
     const bottomRef = useRef<HTMLDivElement | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     // Get the logged in user's role from localStorage
     // This is used to disable approve/reject buttons for non-admins
@@ -146,12 +147,13 @@ export default function ReportsPage({ searchTerm, setSearchTerm }: SearchTermPro
             setLineNumber(0);
             setFiles([]);
             setPreview([]);
+            if (fileInputRef.current) fileInputRef.current.value = '';
 
             setAlertMessage(true);
             setTimeout(() => setAlertMessage(false), 2000);
 
         } catch (err) {
-            setError('Could not connect to the server.');
+            setError(` ${err}: Could not connect to the server.`);
         }
 
         setLoading(false);
@@ -227,6 +229,7 @@ export default function ReportsPage({ searchTerm, setSearchTerm }: SearchTermPro
                             className="input-report-picture"
                             multiple
                             onChange={handleFileChange}
+                            ref={fileInputRef}
                         />
                     </div>
                     <div className='images-input-container'>

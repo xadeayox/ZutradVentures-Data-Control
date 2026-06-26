@@ -1,12 +1,16 @@
 import { apiFetch } from "../../api";
 import type { MaintenanceData } from "./maintenanceTypes";
+import { useState } from "react";
 
 interface MaintenanceMessageProps {
     maintenanceLog: MaintenanceData;
     onMarkDone: () => void;
+    onDelete: (id: number) => void;
 }
 
-export function MaintenanceMessage({ maintenanceLog, onMarkDone }: MaintenanceMessageProps) {
+export function MaintenanceMessage({ maintenanceLog, onMarkDone, onDelete }: MaintenanceMessageProps) {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     async function markAsDone() {
         if (maintenanceLog.isDone) return;
@@ -26,13 +30,33 @@ export function MaintenanceMessage({ maintenanceLog, onMarkDone }: MaintenanceMe
         }
     }
 
+    async function deleteMaintenance(id: number) {
+        if (!window.confirm('Delete this Maintenance?')) return;
+        setLoading(true);
+        setError('');
+        try {
+            const res = await apiFetch(`/api/maintenance/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            console.log('Response status:', res.status);
+            console.log('Response data:', data);
+            if (!res.ok) {
+                throw new Error(data.message || 'Delete failed.');
+            }
+            onDelete(id);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Delete failed.');
+        }
+        setLoading(false);
+    }
+
     return (
         <div className="maintenance-message">
-            <h3>{maintenanceLog.maintenanceDay} — {maintenanceLog.machine}</h3>
+            <h3>Client: {maintenanceLog.client ? maintenanceLog.client.companyName : 'N/A'} — 
+                {maintenanceLog.maintenanceDay}</h3>
             <div>
                 {maintenanceLog.message}
                 <div className="logged-maintenance-metadata">
-                    Client: {maintenanceLog.client ? maintenanceLog.client.companyName : 'N/A'} <br />
+                    Machine: {maintenanceLog.machine}<br />
                     Date Logged: {new Date(maintenanceLog.createdAt).toLocaleDateString('en-GB', {
                         day: 'numeric', month: 'long', year: 'numeric'
                     })} <br />
@@ -46,6 +70,14 @@ export function MaintenanceMessage({ maintenanceLog, onMarkDone }: MaintenanceMe
             >
                 {!maintenanceLog.isDone ? 'Mark as done' : 'Done ✓'}
             </button>
+            <button 
+                className="maintenance-message-delete-button"
+                onClick={() => deleteMaintenance(maintenanceLog.id)}
+                disabled={loading}
+            >
+                Delete
+            </button>
+            {error && <p style={{ color: 'red', fontSize: '0.85rem' }}>{error}</p>}
         </div>
     );
 }

@@ -2,7 +2,7 @@ const express = require('express');
 const Maintenance = require('../models/Maintenance');
 const User = require('../models/User');
 const Client = require('../models/Client');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, restrictTo } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -102,6 +102,24 @@ router.patch('/:id/done', protect, async (req, res) => {
 
     } catch (error) {
         console.error('Mark done error:', error);
+        res.status(500).json({ message: 'Server error. Please try again.' });
+    }
+});
+
+// ─── DELETE /api/supply/:id ──────────────────────────────────────────
+router.delete('/:id', protect, restrictTo('administrator'), async (req, res) => {
+    try {
+        const item = await Maintenance.findByPk(parseInt(req.params.id, 10));
+        if (!item) {
+            return res.status(404).json({ message: 'Maintenance not found.' });
+        }
+
+        await item.destroy();
+
+        res.status(200).json({ message: 'Maintenance deleted.' });
+
+    } catch (error) {
+        console.error('Delete maintenance error:', error);
         res.status(500).json({ message: 'Server error. Please try again.' });
     }
 });

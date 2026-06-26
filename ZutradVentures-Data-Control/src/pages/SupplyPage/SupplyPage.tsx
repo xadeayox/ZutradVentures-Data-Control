@@ -104,9 +104,26 @@ export default function SupplyPage({ searchTerm, setSearchTerm }: SearchTermProp
             setTimeout(() => setAlertMessage(false), 2000);
 
         } catch (err) {
-            setError('Could not connect to the server.');
+            setError(`${err}: Could not connect to the server.`);
         }
 
+        setLoading(false);
+    }
+
+    async function deleteSupply(id: number) {
+        if (!window.confirm('Delete this Supply?')) return;
+        setLoading(true);
+        setError('');
+        try {
+            const res = await apiFetch(`/api/supply/${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.message || 'Delete failed.');
+            }
+            setSupplies(prev => prev.filter(s => s.id !== id)); // ✅ removes it instantly
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Delete failed.');
+        }
         setLoading(false);
     }
 
@@ -138,6 +155,14 @@ export default function SupplyPage({ searchTerm, setSearchTerm }: SearchTermProp
                         </span>
                         <span className="supply-item-details">
                             Supply Date: {item.supplyDate}
+                        </span>
+                        <span>
+                            <button 
+                                className="delete-supply-button"
+                                onClick={() => deleteSupply(item.id)}
+                            >
+                                Delete
+                            </button>
                         </span>
                         <div className="supply-items-date-logged">
                             Date Logged: {new Date(item.createdAt).toLocaleDateString('en-GB', {
