@@ -20,6 +20,7 @@ interface Permissions {
     canViewMaintenance: boolean;
     canViewSupply: boolean;
     canViewStore: boolean;
+    canViewInvoices: boolean;
     role: string;
     loaded: boolean;    // lets components wait before rendering
 }
@@ -71,5 +72,6 @@ export function usePermissions(): Permissions {
         canViewMaintenance: isAdmin || isEngineer || specialPages.includes('maintenance'),
         canViewSupply: isAdmin || isReceptionist || specialPages.includes('supply'),
         canViewStore: isAdmin || specialPages.includes('store'),
+        canViewInvoices: isAdmin || isReceptionist,  // engineers cannot access invoices
     };
 }

@@ -1,9 +1,14 @@
 import { NavLink } from "react-router";
 import { useState } from "react";
+import { usePermissions } from '../hooks/usePermissions';
 import './HamBurgerLinks.css';
 
 export function HamBurgerLinks() {
     const [open, setOpen] = useState(false);
+    const permissions = usePermissions();
+
+    // Engineers have no access to invoice-related pages — hide the entire menu
+    if (!permissions.loaded || !permissions.canViewInvoices) return null;
 
     function toggleHamburger() {
         if(open) {

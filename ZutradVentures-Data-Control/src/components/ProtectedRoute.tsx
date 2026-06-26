@@ -2,7 +2,7 @@ import { Navigate } from 'react-router';
 import { usePermissions } from '../hooks/usePermissions';
 
 interface ProtectedRouteProps {
-    page: 'admin' | 'clients' | 'reports' | 'maintenance' | 'supply' | 'store';
+    page: 'admin' | 'clients' | 'reports' | 'maintenance' | 'supply' | 'store' | 'invoices';
     children: React.ReactNode;
 }
 
@@ -30,6 +30,7 @@ export function ProtectedRoute({ page, children }: ProtectedRouteProps) {
         maintenance: permissions.canViewMaintenance,
         supply: permissions.canViewSupply,
         store: permissions.canViewStore,
+        invoices: permissions.canViewInvoices,
     };
 
     if (!allowed[page]) {
