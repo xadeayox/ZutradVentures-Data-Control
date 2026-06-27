@@ -66,7 +66,7 @@ app.get('*', (req, res) => {
 });
 
 // ─── Database Sync + Server Start ────────────────────────────────────────────
-sequelize.sync({ alter: true })
+sequelize.sync()
     .then(() => {
         console.log('✅ SQLite connected and tables synced');
         const PORT = process.env.PORT || 5000;

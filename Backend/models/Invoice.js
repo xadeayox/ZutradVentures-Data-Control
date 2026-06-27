@@ -1,75 +1,73 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const User = require('./User');
+const Client = require('./Client');
 
 // ─── Invoice Model ────────────────────────────────────────────────────────────
 // Stores invoice records uploaded by receptionists/admins.
-// Each invoice is linked to a client factory and the user who uploaded it.
+// Each invoice stores the client and uploader IDs without enforcing foreign
+// key constraints. This allows users and clients to be deleted while keeping
+// invoice records intact.
 // Files are stored on disk in the /uploads folder; only their metadata lives here.
 
 const Invoice = sequelize.define(
     'Invoice',
     {
         clientId: {
-            // Foreign key to the Client — nullable so invoices survive client deletion.
-            // onDelete: 'SET NULL' must be on the column definition (not just the
-            // association) for SQLite to generate the correct DDL.
+            // Stores the client ID only.
+            // No foreign key constraint.
             type: DataTypes.INTEGER,
             allowNull: true,
-            field: 'client_id',
-            onDelete: 'SET NULL',
-            references: {
-                model: 'clients',
-                key: 'id'
-            }
+            field: 'client_id'
         },
+
         clientName: {
             // Snapshot of the client's companyName at upload time.
-            // If the client is later deleted, this preserves the display name.
-            // The frontend shows this value; falls back to "Unknown Client" if null.
+            // This remains even if the client is later deleted.
             type: DataTypes.STRING,
             allowNull: true,
             field: 'client_name'
         },
+
         uploadedBy: {
-            // Full name snapshot from the JWT (firstName + surname) at upload time.
-            // Stored as a plain string so the record survives user account deletion.
+            // Snapshot of the uploader's full name.
+            // This remains even if the user account is later deleted.
             type: DataTypes.STRING,
             allowNull: false,
             field: 'uploaded_by'
         },
+
         uploadedByUserId: {
-            // Foreign key to the User who uploaded — nullable so old records survive
-            // user deletion
+            // Stores the uploader's user ID only.
+            // No foreign key constraint.
             type: DataTypes.INTEGER,
             allowNull: true,
-            field: 'uploaded_by_user_id',
-            references: {
-                model: User,
-                key: 'id'
-            }
+            field: 'uploaded_by_user_id'
         },
+
         fileName: {
-            // Original file name as uploaded by the user (e.g. "invoice_march.pdf")
+            // Original filename uploaded by the user.
             type: DataTypes.STRING,
             allowNull: false,
             field: 'file_name'
         },
+
         storedFileName: {
-            // The name we saved it as on disk — unique to prevent collisions
-            // e.g. "1718200000000-invoice_march.pdf"
+            // Unique filename used when storing the file on disk.
             type: DataTypes.STRING,
             allowNull: false,
             field: 'stored_file_name'
         },
+
         mimeType: {
-            // e.g. "application/pdf", "application/vnd.ms-excel"
+            // e.g. application/pdf
             type: DataTypes.STRING,
             allowNull: true,
             field: 'mime_type'
         },
+
         fileSize: {
-            // File size in bytes — useful for display and validation
+            // File size in bytes.
             type: DataTypes.INTEGER,
             allowNull: true,
             field: 'file_size'
@@ -77,21 +75,45 @@ const Invoice = sequelize.define(
     },
     {
         tableName: 'invoices',
-        timestamps: true,   // adds createdAt and updatedAt columns
-        underscored: true   // maps camelCase fields to snake_case columns
+        timestamps: true,
+        underscored: true
     }
 );
 
-// ─── Relationships ────────────────────────────────────────────────────────────
-// User → Invoice
-User.hasMany(Invoice, { foreignKey: 'uploaded_by_user_id', as: 'invoices', onDelete: 'SET NULL'});
-Invoice.belongsTo(User, { foreignKey: 'uploaded_by_user_id', as: 'uploader' });
+// ─── Sequelize Associations ───────────────────────────────────────────────────
+// These associations are kept so you can still use:
+//
+// Invoice.findAll({
+//     include: [
+//         { model: User, as: 'uploader' },
+//         { model: Client, as: 'client' }
+//     ]
+// });
+//
+// The database itself no longer enforces these relationships.
 
-// Client → Invoice
-// onDelete: 'SET NULL' means deleting a client nullifies invoice.clientId
-// but leaves the invoice row (and its clientName snapshot) intact.
-const Client = require('./Client');
-Client.hasMany(Invoice, { foreignKey: 'client_id', as: 'invoices', onDelete: 'SET NULL' });
-Invoice.belongsTo(Client, { foreignKey: 'client_id', as: 'client' });
+User.hasMany(Invoice, {
+    foreignKey: 'uploaded_by_user_id',
+    as: 'invoices',
+    constraints: false
+});
+
+Invoice.belongsTo(User, {
+    foreignKey: 'uploaded_by_user_id',
+    as: 'uploader',
+    constraints: false
+});
+
+Client.hasMany(Invoice, {
+    foreignKey: 'client_id',
+    as: 'invoices',
+    constraints: false
+});
+
+Invoice.belongsTo(Client, {
+    foreignKey: 'client_id',
+    as: 'client',
+    constraints: false
+});
 
 module.exports = Invoice;

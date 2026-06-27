@@ -9,7 +9,6 @@ import { Supply } from "../../components/Supply";
 import { Maintenance } from "../../components/Maintenance";
 import { Clients } from "../../components/Clients";
 import { Reports } from "../../components/Reports";
-import SearchIcon from '../../assets/images/search-icon.png';
 import ReportLogo from '../../assets/images/report-logo.png';
 import PDFLogo from '../../assets/images/pdf-logo.png';
 import msWordLogo from '../../assets/images/msword-logo.png';
@@ -54,7 +53,6 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
     const [clients, setClients]               = useState<ClientOption[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<number | ''>('');
     const [invoiceList, setInvoiceList]       = useState<InvoiceRecord[]>([]);
-    const [invoiceSearch, setInvoiceSearch] = useState('');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploading, setUploading]       = useState(false);
     const [error, setError]               = useState<string | null>(null);
@@ -118,7 +116,7 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
                 throw new Error(data.message || 'Upload failed.');
             }
 
-            await fetchInvoices(invoiceSearch);
+            await fetchInvoices(searchTerm);
             setSelectedClientId('');
             setSelectedFile(null);
             if (fileInputRef.current) fileInputRef.current.value = '';
@@ -171,7 +169,7 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
 
     // ── Local search (debounced via re-fetch) ─────────────────────────────
     function handleSearchChange(term: string) {
-        setInvoiceSearch(term);
+        setSearchTerm(term);
         fetchInvoices(term);
     }
 
@@ -179,26 +177,11 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
     return (
         <div className="invoices-container reception-uploads-container">
             <title>Invoices</title>
-            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            <SearchBar searchTerm={searchTerm} setSearchTerm={handleSearchChange} />
 
             {error && (
                 <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>
             )}
-
-            <div className="reception-uploads-search-container">
-                <input
-                    type="text"
-                    placeholder="search invoices..."
-                    className="reception-uploads-search"
-                    value={invoiceSearch}
-                    onChange={(e) => handleSearchChange(e.target.value)}
-                />
-                <img
-                    className="reception-uploads-search-icon"
-                    alt="search"
-                    src={SearchIcon}
-                />
-            </div>
 
             <div className="invoices-list-container reception-uploads-list-container">
                 <h3
@@ -247,7 +230,7 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
                         </p>
 
                         <p className="invoices-poster reception-uploads-poster">
-                            posted by: {invoice.uploadedBy}
+                            posted by: {invoice.uploadedBy ?? 'Unknown User'}
                         </p>
                     </div>
                 ))}

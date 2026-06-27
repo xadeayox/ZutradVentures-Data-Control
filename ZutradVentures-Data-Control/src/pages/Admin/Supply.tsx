@@ -47,7 +47,7 @@ export function Supply() {
                         Quantity: {item.quantity} <br />
                         Supply Date: {item.supplyDate}
                         <div style={{ fontSize: '0.8rem', color: 'gray', marginTop: '4px' }}>
-                            By: {item.user.firstName} {item.user.surname} &nbsp;|&nbsp;
+                            By: { item.user ? `${item.user.firstName} ${item.user.surname}` : 'Deleted User'} &nbsp;|&nbsp;
                             {new Date(item.createdAt).toLocaleDateString('en-GB', {
                                 day: 'numeric', month: 'long', year: 'numeric'
                             })}

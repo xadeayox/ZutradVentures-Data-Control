@@ -5,7 +5,8 @@ const Client = require('./Client');
 
 // ─── Supply Model ─────────────────────────────────────────────────────────────
 // Represents a supply entry — goods supplied to a client factory.
-// Linked to the client it was supplied to and the user who logged it.
+// Stores the user and client IDs without enforcing foreign key constraints.
+// This allows users and clients to be deleted while keeping supply records.
 
 const Supply = sequelize.define(
     'Supply',
@@ -15,38 +16,41 @@ const Supply = sequelize.define(
             allowNull: false,
             field: 'goods_supplied'
         },
+
         partNumber: {
             type: DataTypes.STRING,
             allowNull: false,
             field: 'part_number'
         },
+
         quantity: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            validate: { min: 1 }
+            validate: {
+                min: 1
+            }
         },
+
         supplyDate: {
             type: DataTypes.DATEONLY,
             allowNull: false,
             field: 'supply_date'
         },
+
+        // Stores the client ID only.
+        // No foreign key constraint.
         clientId: {
             type: DataTypes.INTEGER,
             allowNull: true,
-            field: 'client_id',
-            references: {
-                model: Client,
-                key: 'id'
-            }
+            field: 'client_id'
         },
+
+        // Stores the user ID only.
+        // No foreign key constraint.
         userId: {
             type: DataTypes.INTEGER,
-            allowNull: true,    // if user is deleted, supply entry stays with userId as null
-            field: 'user_id',
-            references: {
-                model: User,
-                key: 'id'
-            }
+            allowNull: true,
+            field: 'user_id'
         }
     },
     {
@@ -56,11 +60,40 @@ const Supply = sequelize.define(
     }
 );
 
-// ─── Relationships ────────────────────────────────────────────────────────────
-Client.hasMany(Supply, { foreignKey: 'client_id', as: 'supplies' });
-Supply.belongsTo(Client, { foreignKey: 'client_id', as: 'client'});
+// ─── Sequelize Associations ───────────────────────────────────────────────────
+// These associations are kept so you can still use:
+//
+// Supply.findAll({
+//     include: [
+//         { model: User, as: 'user' },
+//         { model: Client, as: 'client' }
+//     ]
+// });
+//
+// The database itself no longer enforces these relationships.
 
-User.hasMany(Supply, { foreignKey: 'user_id', as: 'supplies', onDelete: 'SET NULL' });
-Supply.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+Client.hasMany(Supply, {
+    foreignKey: 'client_id',
+    as: 'supplies',
+    constraints: false
+});
+
+Supply.belongsTo(Client, {
+    foreignKey: 'client_id',
+    as: 'client',
+    constraints: false
+});
+
+User.hasMany(Supply, {
+    foreignKey: 'user_id',
+    as: 'supplies',
+    constraints: false
+});
+
+Supply.belongsTo(User, {
+    foreignKey: 'user_id',
+    as: 'user',
+    constraints: false
+});
 
 module.exports = Supply;

@@ -5,66 +5,63 @@ const Client = require('./Client');
 
 // ─── Report Model ─────────────────────────────────────────────────────────────
 // Represents a report submitted by any user (engineer, receptionist, admin).
-// Each report is linked to a client (factory) and the user who submitted it.
-// Images are stored as file paths on the server, not as binary data in the DB.
+// Each report stores the IDs of the user and client, but the database does
+// not enforce foreign key constraints. This allows users and clients to be
+// deleted without affecting existing reports.
 
 const Report = sequelize.define(
     'Report',
     {
         reportDetails: {
-            type: DataTypes.TEXT,   // TEXT instead of STRING — reports can be long
+            type: DataTypes.TEXT,
             allowNull: false,
             field: 'report_details'
         },
+
         lineNumber: {
             type: DataTypes.INTEGER,
             allowNull: false,
             field: 'line_number'
         },
-        // imagePaths stores a JSON array of file paths e.g. ["uploads/img1.jpg", "uploads/img2.jpg"]
-        // We stringify it before saving and parse it when reading
+
+        // Stores image paths as a JSON string.
         imagePaths: {
             type: DataTypes.TEXT,
-            defaultValue: '[]',     // empty array by default
+            defaultValue: '[]',
             field: 'image_paths',
+
             get() {
-                // automatically parse the JSON string when reading
                 const value = this.getDataValue('imagePaths');
                 return value ? JSON.parse(value) : [];
             },
+
             set(value) {
-                // automatically stringify the array when saving
                 this.setDataValue('imagePaths', JSON.stringify(value));
             }
         },
+
         status: {
-            // Visual status — only the admin can change this
             type: DataTypes.STRING,
             defaultValue: 'pending',
             validate: {
                 isIn: [['pending', 'approved', 'rejected']]
             }
         },
+
+        // Just stores the client ID.
+        // No foreign key constraint.
         clientId: {
             type: DataTypes.INTEGER,
             allowNull: true,
-            field: 'client_id',
-            references: {
-                model: Client,
-                key: 'id'
-            }
+            field: 'client_id'
         },
+
+        // Just stores the user ID.
+        // No foreign key constraint.
         userId: {
-            // The user who submitted the report
-            // allowNull: true means if the user is deleted, the report stays
-            // but userId becomes null instead of deleting the report too
             type: DataTypes.INTEGER,
             allowNull: true,
-            field: 'user_id',
-            references: {
-                model: User,
-                key: 'id'
-            }
+            field: 'user_id'
         }
     },
     {
@@ -74,11 +71,40 @@ const Report = sequelize.define(
     }
 );
 
-// ─── Relationships ────────────────────────────────────────────────────────────
-User.hasMany(Report, { foreignKey: 'user_id', as: 'reports', onDelete: 'SET NULL' });
-Report.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+// ─── Sequelize Associations ───────────────────────────────────────────────────
+// These associations are kept so you can still use:
+//
+// Report.findAll({
+//     include: [
+//         { model: User, as: 'user' },
+//         { model: Client, as: 'client' }
+//     ]
+// });
+//
+// The database itself no longer enforces these relationships.
 
-Client.hasMany(Report, { foreignKey: 'client_id', as: 'reports' });
-Report.belongsTo(Client, { foreignKey: 'client_id', as: 'client'});
+User.hasMany(Report, {
+    foreignKey: 'user_id',
+    as: 'reports',
+    constraints: false
+});
+
+Report.belongsTo(User, {
+    foreignKey: 'user_id',
+    as: 'user',
+    constraints: false
+});
+
+Client.hasMany(Report, {
+    foreignKey: 'client_id',
+    as: 'reports',
+    constraints: false
+});
+
+Report.belongsTo(Client, {
+    foreignKey: 'client_id',
+    as: 'client',
+    constraints: false
+});
 
 module.exports = Report;

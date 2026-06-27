@@ -9,7 +9,6 @@ import { Supply } from "../../components/Supply";
 import { Maintenance } from "../../components/Maintenance";
 import { Clients } from "../../components/Clients";
 import { Reports } from "../../components/Reports";
-import SearchIcon from '../../assets/images/search-icon.png';
 import ReportLogo from '../../assets/images/report-logo.png';
 import PDFLogo from '../../assets/images/pdf-logo.png';
 import msWordLogo from '../../assets/images/msword-logo.png';
@@ -53,7 +52,6 @@ export default function QuotationsPage({searchTerm, setSearchTerm}: SearchTermPr
 const [clients, setClients]                   = useState<ClientOption[]>([]);
 const [selectedClientId, setSelectedClientId] = useState('');
 const [files, setFiles]                       = useState<File[]>([]);
-const [quotationSearch, setQuotationSearch]   = useState('');
 const [uploading, setUploading]               = useState(false);
 const [error, setError]                       = useState<string | null>(null);
 
@@ -139,7 +137,7 @@ const bottomRef    = useRef<HTMLDivElement | null>(null);
 
         } catch (err) {
             console.error('Upload Quotation error:', err);
-            setError('Network error. Please check your connection.');
+            setError('Network error / Invalid file type.');
         } finally {
             setUploading(false);
         }
@@ -189,7 +187,7 @@ const bottomRef    = useRef<HTMLDivElement | null>(null);
 
     // ── Filter Quotations by search term ─────────────────────────────────────────
     const filteredQuotations = quotationList.filter(quotation => {
-        const search = quotationSearch.toLowerCase();
+        const search = searchTerm.toLowerCase();
         return (
             quotation.clientFactory.toLowerCase().includes(search) ||
             quotation.fileName.toLowerCase().includes(search) ||
@@ -204,22 +202,6 @@ const bottomRef    = useRef<HTMLDivElement | null>(null);
 
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-            {/* Local quotation search */}
-            <div className="reception-uploads-search-container">
-                <input
-                    type="text"
-                    placeholder="search quotations..."
-                    className="reception-uploads-search"
-                    value={quotationSearch}
-                    onChange={e => setQuotationSearch(e.target.value)}
-                />
-                <img
-                    className="reception-uploads-search-icon"
-                    alt="search"
-                    src={SearchIcon}
-                />
-            </div>
-
             {/* Quotation list */}
             <div className="quotations-list-container reception-uploads-list-container">
                 {quotationList.length === 0 && (
@@ -231,7 +213,7 @@ const bottomRef    = useRef<HTMLDivElement | null>(null);
                 {filteredQuotations.map(quotation => (
                     <div className="quotations-card reception-uploads-card" key={quotation.id}>
                         <h3 className="reception-uploads-header">
-                            {quotation.clientFactory}
+                            {quotation.clientFactory ?? 'Unknown Client'}
                         </h3>
 
                         {/* File type icon */}
@@ -265,7 +247,7 @@ const bottomRef    = useRef<HTMLDivElement | null>(null);
                         </p>
 
                         <p className="quotations-poster reception-uploads-poster">
-                            posted by: {quotation.uploadedBy}
+                            posted by: {quotation.uploadedBy ?? 'Unknown User'}
                         </p>
                     </div>
                 ))}

@@ -9,7 +9,6 @@ import { Supply } from "../../components/Supply";
 import { Maintenance } from "../../components/Maintenance";
 import { Clients } from "../../components/Clients";
 import { Reports } from "../../components/Reports";
-import SearchIcon from '../../assets/images/search-icon.png';
 import ReportLogo from '../../assets/images/report-logo.png';
 import PDFLogo from '../../assets/images/pdf-logo.png';
 import msWordLogo from '../../assets/images/msword-logo.png';
@@ -55,7 +54,6 @@ export default function PurchaseOrdersPage({ searchTerm, setSearchTerm }: Search
     const [clients, setClients]                   = useState<ClientOption[]>([]);
     const [selectedClientId, setSelectedClientId] = useState('');
     const [files, setFiles]                       = useState<File[]>([]);
-    const [purchaseOrderSearch, setPurchaseOrderSearch] = useState('');
     const [uploading, setUploading]               = useState(false);
     const [error, setError]                       = useState<string | null>(null);
 
@@ -137,7 +135,7 @@ export default function PurchaseOrdersPage({ searchTerm, setSearchTerm }: Search
 
         } catch (err) {
             console.error('Upload Purchase Order error:', err);
-            setError('Network error. Please check your connection.');
+            setError('Network error / Invalid file type.');
         } finally {
             setUploading(false);
         }
@@ -185,7 +183,7 @@ export default function PurchaseOrdersPage({ searchTerm, setSearchTerm }: Search
 
     // ── Filter Purchase Orders by search term ─────────────────────────────────
     const filteredPurchaseOrders = purchaseOrderList.filter(po => {
-        const search = purchaseOrderSearch.toLowerCase();
+        const search = searchTerm.toLowerCase();
         return (
             po.clientFactory.toLowerCase().includes(search) ||
             po.fileName.toLowerCase().includes(search) ||
@@ -200,22 +198,6 @@ export default function PurchaseOrdersPage({ searchTerm, setSearchTerm }: Search
 
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-            {/* Local Purchase Order search */}
-            <div className="reception-uploads-search-container">
-                <input
-                    type="text"
-                    placeholder="search purchase orders..."
-                    className="reception-uploads-search"
-                    value={purchaseOrderSearch}
-                    onChange={e => setPurchaseOrderSearch(e.target.value)}
-                />
-                <img
-                    className="reception-uploads-search-icon"
-                    alt="search"
-                    src={SearchIcon}
-                />
-            </div>
-
             {/* Purchase Order list */}
             <div className="purchase-orders-list-container reception-uploads-list-container">
                 {purchaseOrderList.length === 0 && (
@@ -227,7 +209,7 @@ export default function PurchaseOrdersPage({ searchTerm, setSearchTerm }: Search
                 {filteredPurchaseOrders.map(po => (
                     <div className="purchase-orders-card reception-uploads-card" key={po.id}>
                         <h3 className="reception-uploads-header">
-                            {po.clientFactory}
+                            {po.clientFactory ?? 'Unknown Client'}
                         </h3>
 
                         {/* File type icon */}
@@ -261,7 +243,7 @@ export default function PurchaseOrdersPage({ searchTerm, setSearchTerm }: Search
                         </p>
 
                         <p className="purchase-orders-poster reception-uploads-poster">
-                            posted by: {po.uploadedBy}
+                            posted by: {po.uploadedBy ?? 'Unknown User'}
                         </p>
                     </div>
                 ))}

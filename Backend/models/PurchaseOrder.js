@@ -1,54 +1,51 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const User = require('./User');
+const Client = require('./Client');
 
 // ─── Purchase Order Model ─────────────────────────────────────────────────────
 // Stores Purchase Orders uploaded by receptionists or admins.
-// Each Purchase Order is linked to a client factory and the user who uploaded it.
-// Files are stored in the /uploads folder on disk; only the filename is saved here.
-//
-// Client FK is nullable ON DELETE SET NULL — if a client is deleted,
-// the Purchase Order remains but clientId becomes null (shown as "Unknown Client" on frontend).
+// Each Purchase Order stores the client and uploader IDs without enforcing
+// foreign key constraints. This allows users and clients to be deleted while
+// keeping purchase order records intact.
+// Files are stored in the /uploads folder on disk; only their metadata lives here.
 
 const PurchaseOrder = sequelize.define(
     'PurchaseOrder',
     {
         clientId: {
-            // References the client this Purchase Order belongs to.
+            // Stores the client ID only.
+            // No foreign key constraint.
             type: DataTypes.INTEGER,
             allowNull: true,
-            field: 'client_id',
-            references: {
-                model: 'clients',
-                key: 'id'
-            },
-            onDelete: 'SET NULL'
+            field: 'client_id'
         },
+
         uploadedById: {
-            // The user who uploaded this Purchase Order.
+            // Stores the uploader's user ID only.
+            // No foreign key constraint.
             type: DataTypes.INTEGER,
             allowNull: true,
-            field: 'uploaded_by_id',
-            references: {
-                model: 'users',
-                key: 'id'
-            },
-            onDelete: 'SET NULL'
+            field: 'uploaded_by_id'
         },
+
         fileName: {
-            // Original filename as uploaded (e.g. "purchase-order.pdf")
+            // Original filename uploaded by the user.
+            // e.g. "purchase-order.pdf"
             type: DataTypes.STRING,
             allowNull: false,
             field: 'file_name'
         },
+
         storedName: {
-            // Unique filename used on disk to avoid collisions
+            // Unique filename used when storing the file on disk.
             type: DataTypes.STRING,
             allowNull: false,
             field: 'stored_name'
         },
+
         mimeType: {
-            // e.g. "application/pdf", "application/vnd.ms-excel"
+            // e.g. "application/pdf"
             type: DataTypes.STRING,
             allowNull: false,
             field: 'mime_type'
@@ -61,15 +58,40 @@ const PurchaseOrder = sequelize.define(
     }
 );
 
-// ─── Relationships ────────────────────────────────────────────────────────────
-// A Purchase Order belongs to a client. Client deletion sets clientId to null.
-// A Purchase Order belongs to a user (uploader). User deletion sets uploadedById to null.
+// ─── Sequelize Associations ───────────────────────────────────────────────────
+// These associations are kept so you can still use:
+//
+// PurchaseOrder.findAll({
+//     include: [
+//         { model: User, as: 'uploadedBy' },
+//         { model: Client, as: 'client' }
+//     ]
+// });
+//
+// The database itself no longer enforces these relationships.
 
-const Client = require('./Client');
-Client.hasMany(PurchaseOrder, { foreignKey: 'client_id', as: 'purchaseOrders', onDelete: 'SET NULL' });
-PurchaseOrder.belongsTo(Client, { foreignKey: 'client_id', as: 'client', onDelete: 'SET NULL' });
+Client.hasMany(PurchaseOrder, {
+    foreignKey: 'client_id',
+    as: 'purchaseOrders',
+    constraints: false
+});
 
-User.hasMany(PurchaseOrder, { foreignKey: 'uploaded_by_id', as: 'uploadedPurchaseOrders', onDelete: 'SET NULL' });
-PurchaseOrder.belongsTo(User, { foreignKey: 'uploaded_by_id', as: 'uploadedBy', onDelete: 'SET NULL' });
+PurchaseOrder.belongsTo(Client, {
+    foreignKey: 'client_id',
+    as: 'client',
+    constraints: false
+});
+
+User.hasMany(PurchaseOrder, {
+    foreignKey: 'uploaded_by_id',
+    as: 'uploadedPurchaseOrders',
+    constraints: false
+});
+
+PurchaseOrder.belongsTo(User, {
+    foreignKey: 'uploaded_by_id',
+    as: 'uploadedBy',
+    constraints: false
+});
 
 module.exports = PurchaseOrder;

@@ -44,7 +44,7 @@ export function Maintenance() {
                         </summary>
                         {log.message}
                         <div style={{ fontSize: '0.8rem', color: 'gray', marginTop: '4px' }}>
-                            By: {log.user.firstName} {log.user.surname} &nbsp;|&nbsp;
+                            By: { log.user ? `${log.user.firstName} ${log.user.surname}` : 'Deleted User'} &nbsp;|&nbsp;
                             Status: {log.isDone ? '✓ Done' : 'Pending'} &nbsp;|&nbsp;
                             {new Date(log.createdAt).toLocaleDateString('en-GB', {
                                 day: 'numeric', month: 'long', year: 'numeric'

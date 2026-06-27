@@ -44,7 +44,7 @@ export function ViewReports() {
                         </summary>
                         {report.reportDetails}
                         <div style={{ fontSize: '0.8rem', color: 'gray', marginTop: '4px' }}>
-                            By: {report.user.firstName} {report.user.surname} &nbsp;|&nbsp;
+                            By: { report.user ? `${report.user.firstName} ${report.user.surname}` : 'Deleted User'} &nbsp;|&nbsp;
                             Status: {report.status} &nbsp;|&nbsp;
                             {new Date(report.createdAt).toLocaleDateString('en-GB', {
                                 day: 'numeric', month: 'long', year: 'numeric'

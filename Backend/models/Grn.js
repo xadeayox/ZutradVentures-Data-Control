@@ -1,57 +1,52 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const User = require('./User');
+const Client = require('./Client');
 
 // ─── GRN Model ────────────────────────────────────────────────────────────────
 // Stores Goods Received Notes uploaded by receptionists or admins.
-// Each GRN is linked to a client factory and the user who uploaded it.
-// Files are stored in the /uploads folder on disk; only the filename is saved here.
-//
-// Client FK is nullable ON DELETE SET NULL — if a client is deleted,
-// the GRN remains but clientId becomes null (shown as "Unknown Client" on frontend).
+// Each GRN stores the client and uploader IDs without enforcing foreign key
+// constraints. This allows users and clients to be deleted while keeping
+// GRN records intact.
+// Files are stored in the /uploads folder on disk; only their metadata lives here.
 
 const Grn = sequelize.define(
     'Grn',
     {
         clientId: {
-            // References the client this GRN belongs to.
-            // SET NULL on delete so GRNs survive client removal.
+            // Stores the client ID only.
+            // No foreign key constraint.
             type: DataTypes.INTEGER,
             allowNull: true,
-            field: 'client_id',
-            references: {
-                model: 'clients',
-                key: 'id'
-            },
-            onDelete: 'SET NULL'
+            field: 'client_id'
         },
+
         uploadedById: {
-            // The user who uploaded this GRN.
-            // SET NULL on delete so the record is kept even if the user is removed.
+            // Stores the uploader's user ID only.
+            // No foreign key constraint.
             type: DataTypes.INTEGER,
             allowNull: true,
-            field: 'uploaded_by_id',
-            references: {
-                model: 'users',
-                key: 'id'
-            },
-            onDelete: 'SET NULL'
+            field: 'uploaded_by_id'
         },
+
         fileName: {
-            // Original filename as uploaded (e.g. "delivery-note.pdf")
+            // Original filename uploaded by the user.
+            // e.g. "delivery-note.pdf"
             type: DataTypes.STRING,
             allowNull: false,
             field: 'file_name'
         },
+
         storedName: {
-            // UUID-based filename used on disk to avoid collisions
+            // Unique filename used when storing the file on disk.
             // e.g. "1719123456789-delivery-note.pdf"
             type: DataTypes.STRING,
             allowNull: false,
             field: 'stored_name'
         },
+
         mimeType: {
-            // e.g. "application/pdf", "application/vnd.ms-excel"
+            // e.g. "application/pdf"
             type: DataTypes.STRING,
             allowNull: false,
             field: 'mime_type'
@@ -64,15 +59,40 @@ const Grn = sequelize.define(
     }
 );
 
-// ─── Relationships ────────────────────────────────────────────────────────────
-// A GRN belongs to a client. Client deletion sets clientId to null.
-// A GRN belongs to a user (uploader). User deletion sets uploadedById to null.
+// ─── Sequelize Associations ───────────────────────────────────────────────────
+// These associations are kept so you can still use:
+//
+// Grn.findAll({
+//     include: [
+//         { model: User, as: 'uploadedBy' },
+//         { model: Client, as: 'client' }
+//     ]
+// });
+//
+// The database itself no longer enforces these relationships.
 
-const Client = require('./Client');
-Client.hasMany(Grn, { foreignKey: 'client_id', as: 'grns', onDelete: 'SET NULL' });
-Grn.belongsTo(Client, { foreignKey: 'client_id', as: 'client', onDelete: 'SET NULL' });
+Client.hasMany(Grn, {
+    foreignKey: 'client_id',
+    as: 'grns',
+    constraints: false
+});
 
-User.hasMany(Grn, { foreignKey: 'uploaded_by_id', as: 'uploadedGrns', onDelete: 'SET NULL' });
-Grn.belongsTo(User, { foreignKey: 'uploaded_by_id', as: 'uploadedBy', onDelete: 'SET NULL' });
+Grn.belongsTo(Client, {
+    foreignKey: 'client_id',
+    as: 'client',
+    constraints: false
+});
+
+User.hasMany(Grn, {
+    foreignKey: 'uploaded_by_id',
+    as: 'uploadedGrns',
+    constraints: false
+});
+
+Grn.belongsTo(User, {
+    foreignKey: 'uploaded_by_id',
+    as: 'uploadedBy',
+    constraints: false
+});
 
 module.exports = Grn;

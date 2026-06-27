@@ -1,54 +1,51 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const User = require('./User');
+const Client = require('./Client');
 
 // ─── Quotation Model ──────────────────────────────────────────────────────────
 // Stores quotations uploaded by receptionists or admins.
-// Each quotation is linked to a client factory and the user who uploaded it.
-// Files are stored in the /uploads folder on disk; only the filename is saved here.
-//
-// Client FK is nullable ON DELETE SET NULL — if a client is deleted,
-// the quotation remains but clientId becomes null (shown as "Unknown Client" on frontend).
+// Each quotation stores the client and uploader IDs without enforcing foreign
+// key constraints. This allows users and clients to be deleted while keeping
+// quotation records intact.
+// Files are stored in the /uploads folder on disk; only their metadata lives here.
 
 const Quotation = sequelize.define(
     'Quotation',
     {
         clientId: {
-            // References the client this quotation belongs to.
+            // Stores the client ID only.
+            // No foreign key constraint.
             type: DataTypes.INTEGER,
             allowNull: true,
-            field: 'client_id',
-            references: {
-                model: 'clients',
-                key: 'id'
-            },
-            onDelete: 'SET NULL'
+            field: 'client_id'
         },
+
         uploadedById: {
-            // The user who uploaded this quotation.
+            // Stores the uploader's user ID only.
+            // No foreign key constraint.
             type: DataTypes.INTEGER,
             allowNull: true,
-            field: 'uploaded_by_id',
-            references: {
-                model: 'users',
-                key: 'id'
-            },
-            onDelete: 'SET NULL'
+            field: 'uploaded_by_id'
         },
+
         fileName: {
-            // Original filename as uploaded (e.g. "quotation.pdf")
+            // Original filename uploaded by the user.
+            // e.g. "quotation.pdf"
             type: DataTypes.STRING,
             allowNull: false,
             field: 'file_name'
         },
+
         storedName: {
-            // Unique filename used on disk to avoid collisions
+            // Unique filename used when storing the file on disk.
             type: DataTypes.STRING,
             allowNull: false,
             field: 'stored_name'
         },
+
         mimeType: {
-            // e.g. "application/pdf", "application/vnd.ms-excel"
+            // e.g. "application/pdf"
             type: DataTypes.STRING,
             allowNull: false,
             field: 'mime_type'
@@ -61,15 +58,40 @@ const Quotation = sequelize.define(
     }
 );
 
-// ─── Relationships ────────────────────────────────────────────────────────────
-// A quotation belongs to a client. Client deletion sets clientId to null.
-// A quotation belongs to a user (uploader). User deletion sets uploadedById to null.
+// ─── Sequelize Associations ───────────────────────────────────────────────────
+// These associations are kept so you can still use:
+//
+// Quotation.findAll({
+//     include: [
+//         { model: User, as: 'uploadedBy' },
+//         { model: Client, as: 'client' }
+//     ]
+// });
+//
+// The database itself no longer enforces these relationships.
 
-const Client = require('./Client');
-Client.hasMany(Quotation, { foreignKey: 'client_id', as: 'quotations', onDelete: 'SET NULL' });
-Quotation.belongsTo(Client, { foreignKey: 'client_id', as: 'client', onDelete: 'SET NULL' });
+Client.hasMany(Quotation, {
+    foreignKey: 'client_id',
+    as: 'quotations',
+    constraints: false
+});
 
-User.hasMany(Quotation, { foreignKey: 'uploaded_by_id', as: 'uploadedQuotations', onDelete: 'SET NULL' });
-Quotation.belongsTo(User, { foreignKey: 'uploaded_by_id', as: 'uploadedBy', onDelete: 'SET NULL' });
+Quotation.belongsTo(Client, {
+    foreignKey: 'client_id',
+    as: 'client',
+    constraints: false
+});
+
+User.hasMany(Quotation, {
+    foreignKey: 'uploaded_by_id',
+    as: 'uploadedQuotations',
+    constraints: false
+});
+
+Quotation.belongsTo(User, {
+    foreignKey: 'uploaded_by_id',
+    as: 'uploadedBy',
+    constraints: false
+});
 
 module.exports = Quotation;

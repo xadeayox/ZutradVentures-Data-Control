@@ -9,7 +9,6 @@ import { Supply } from "../../components/Supply";
 import { Maintenance } from "../../components/Maintenance";
 import { Clients } from "../../components/Clients";
 import { Reports } from "../../components/Reports";
-import SearchIcon from '../../assets/images/search-icon.png';
 import ReportLogo from '../../assets/images/report-logo.png';
 import PDFLogo from '../../assets/images/pdf-logo.png';
 import msWordLogo from '../../assets/images/msword-logo.png';
@@ -55,7 +54,6 @@ export default function GRNsPage({ searchTerm, setSearchTerm }: SearchTermProps)
     const [clients, setClients]       = useState<ClientOption[]>([]);
     const [selectedClientId, setSelectedClientId] = useState('');
     const [files, setFiles]           = useState<File[]>([]);
-    const [grnSearch, setGrnSearch]   = useState('');
     const [uploading, setUploading]   = useState(false);
     const [error, setError]           = useState<string | null>(null);
 
@@ -141,7 +139,7 @@ export default function GRNsPage({ searchTerm, setSearchTerm }: SearchTermProps)
 
         } catch (err) {
             console.error('Upload GRN error:', err);
-            setError('Network error. Please check your connection.');
+            setError('Network error / Invalid File type.');
         } finally {
             setUploading(false);
         }
@@ -191,7 +189,7 @@ export default function GRNsPage({ searchTerm, setSearchTerm }: SearchTermProps)
 
     // ── Filter GRNs by search term ─────────────────────────────────────────────
     const filteredGrns = grnList.filter(grn => {
-        const search = grnSearch.toLowerCase();
+        const search = searchTerm.toLowerCase();
         return (
             grn.clientFactory.toLowerCase().includes(search) ||
             grn.fileName.toLowerCase().includes(search) ||
@@ -206,22 +204,6 @@ export default function GRNsPage({ searchTerm, setSearchTerm }: SearchTermProps)
 
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-            {/* Local GRN search */}
-            <div className="reception-uploads-search-container">
-                <input
-                    type="text"
-                    placeholder="search GRNs..."
-                    className="reception-uploads-search"
-                    value={grnSearch}
-                    onChange={e => setGrnSearch(e.target.value)}
-                />
-                <img
-                    className="reception-uploads-search-icon"
-                    alt="search"
-                    src={SearchIcon}
-                />
-            </div>
-
             {/* GRN list */}
             <div className="grns-list-container reception-uploads-list-container">
                 {grnList.length === 0 && (
@@ -233,7 +215,7 @@ export default function GRNsPage({ searchTerm, setSearchTerm }: SearchTermProps)
                 {filteredGrns.map(grn => (
                     <div className="grns-card reception-uploads-card" key={grn.id}>
                         <h3 className="reception-uploads-header">
-                            {grn.clientFactory}
+                            {grn.clientFactory ?? 'Unknown Client'}
                         </h3>
 
                         {/* File type icon */}
@@ -267,7 +249,7 @@ export default function GRNsPage({ searchTerm, setSearchTerm }: SearchTermProps)
                         </p>
 
                         <p className="grns-poster reception-uploads-poster">
-                            posted by: {grn.uploadedBy}
+                            posted by: {grn.uploadedBy ?? 'Unknown User'}
                         </p>
                     </div>
                 ))}
