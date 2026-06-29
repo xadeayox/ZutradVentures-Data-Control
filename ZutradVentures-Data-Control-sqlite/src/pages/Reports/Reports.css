@@ -1,0 +1,195 @@
+.reports-container {
+    display: flex;
+    flex-direction: column;
+    height: 90vh;
+}
+
+.reports-header {
+    text-align: center;
+    color: rgb(99, 99, 99);
+    margin-top: 5px;
+}
+
+.reports-messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.report-message {
+    margin: 5px;
+    background-color: rgb(238, 238, 238);
+    border-radius: 8px;
+    padding: 0.5rem;
+    width: 70%;
+    height: auto;
+    box-shadow: 0 0 8px rgb(99, 99, 99);
+}
+
+.report-message-header {
+    color: rgb(99, 99, 99);
+    text-align: center;
+}
+
+.report-details {
+    white-space: pre-wrap;
+}
+
+.report-metadata {
+    font-size: 10px;
+    padding: 0.2rem;
+    text-align: right;
+}
+
+.input-controller-reports {
+    margin-left: 5px;
+    background-color: rgb(233, 233, 233);
+    width: 50px;
+    position: fixed;
+    bottom: 400px;
+    border-radius: 100px;
+}
+
+.reports-input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+    background-color: white;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    border-top: 1px solid #ccc;
+}
+
+.report-factory-line-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.report-textarea-input {
+    width: 70%;
+    height: 150px;
+    border: none;
+    border-bottom: 2px solid black;
+    resize: none;
+    overflow-y: auto;
+    margin: 5px;
+}
+
+.report-textarea-input::placeholder {
+    text-align: center;
+}
+
+.report-factory-selection {
+    margin-bottom: 5px;
+}
+
+.report-factory-selection, .report-factory-line, .save-reports-button {
+    padding: 5px;
+    border-radius: 8px;
+    border: 1px solid black;
+}
+
+.report-factory-line {
+    width: 50%;
+}
+
+.images-input-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.images-input {
+     max-width: 150px; 
+     border: 1px solid #ccc; 
+     border-radius: 4px;
+}
+
+.images-report-message {
+    max-width: 150px;
+     cursor: pointer;
+      border: 1px solid #ccc;
+}
+
+.image-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.save-reports-button {
+    padding: 7px;
+    margin-left: 5px;
+    border: none;
+    background-color: #ff6060;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.save-reports-button:hover {
+    background-color: rgb(255, 144, 144);
+    padding: 10px;
+}
+
+.report-button {
+    border: none;
+    padding: 7px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px;
+    margin: 5px;
+}
+
+.report-button-approve {
+    background-color: green;
+    transition: 0.2s ease-in-out;
+}
+
+.report-button-approve:hover {
+    background-color: rgb(0, 180, 0);
+}
+
+.report-button-reject {
+    background-color: red;
+    transition: 0.2s ease-in-out;
+}
+
+.report-button-reject:hover {
+    background-color: rgb(255, 144, 144);
+}
+
+.report-button-delete {
+    color: red;
+    background-color: rgb(238, 238, 238);
+}
+
+@media screen and (max-width: 768px) {
+    .report-button {
+        font-size: 10px;
+        margin: 2px;
+    }
+
+    .input-controller-reports {
+        margin-left: 5px;
+        background-color: rgb(166, 166, 166);
+        width: 40px;
+        position: fixed;
+        top: 150px;
+        border-radius: 100px;
+    }
+}

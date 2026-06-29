@@ -1,0 +1,158 @@
+.store-page-container {
+    height: 100vh;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.store-content {
+    min-height: 76vh;
+    max-height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.store-machine-card {
+    width: 42%;
+    background-color: rgb(239, 239, 239);
+    margin: 5px;
+    height: auto;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 4px rgb(99, 99, 99);
+}
+
+.store-machine-card-contents {
+    display: flex;
+    align-items: center;
+    gap: 8rem;
+}
+
+.store-machine-card h3 {
+    color: rgb(99, 99, 99);
+}
+
+.store-machine-image {
+    width: 200px;
+}
+
+.store-machine-image-savema {
+    height: 133px;
+    width: 150px;
+}
+
+.store-machine-image-bestcode {
+    height: 133px;
+    width: 150px;
+}
+
+.store-machine-card div summary {
+    list-style: none;
+    cursor: pointer;
+    background-color: rgb(216, 216, 216);
+    margin-top: 5px;
+    padding: 3px;
+    width: 100%;
+    border-radius: 5px;
+    color: rgb(99, 99, 99);
+
+}
+
+.store-date-updated {
+    font-size: 10px;
+}
+
+.toggle-input-store {
+    width: 50px;
+    background-color: rgb(233, 233, 233);
+    margin-left: 5px;
+    border-radius: 100px;
+    position: fixed;
+    bottom: 150px;
+}
+
+.store-input-container {
+    position: sticky;
+    bottom: 0px;
+    padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    background-color: white;
+    z-index: 10;
+}
+
+.store-input-component {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid black;
+    margin: 3px;
+    box-sizing: border-box;
+}
+
+.store-input-serial-number {
+    width: 100%;
+    max-width: 200px;
+}
+
+.see-all-parts-store-link {
+    text-decoration: none;
+    color: rgb(255, 144, 144);
+    font-style: italic;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.store-input-name {
+    width: 100%;
+    max-width: 400px;
+}
+
+.store-quantity-input {
+    width: 100%;
+    max-width: 60px;
+}
+
+.save-store-input-button {
+    border: none;
+    color: white;
+    background-color: red;
+    transition: 0.2s ease-in-out;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.save-store-input-button:hover {
+    background-color: rgb(255, 144, 144);
+    padding: 7px;
+}
+
+@media screen and (max-width: 768px) {
+    .store-machine-card-contents {
+        display: block;
+    }
+
+    .store-machine-image {
+        display: none;
+    }
+
+    .store-input-container {
+        width: 90%;
+    }
+    .store-input-serial-number {
+        max-width: 100%;
+    }
+    .store-input-name {
+        max-width: 100%;
+    }
+
+    .toggle-input-store {
+        width: 50px;
+        background-color: rgb(233, 233, 233);
+        margin-left: 5px;
+        border-radius: 100px;
+        position: fixed;
+        bottom: 350px;
+    }
+}

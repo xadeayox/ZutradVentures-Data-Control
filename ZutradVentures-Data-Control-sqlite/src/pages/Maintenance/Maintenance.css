@@ -1,0 +1,161 @@
+.maintenance-page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.maintenance-messages-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.maintenance-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.maintenance-header {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.maintenance-summary-input {
+  padding: 10px;
+  width: 40%;
+  border-radius: 8px;
+  border: 1px solid black;
+  margin: 2px;
+}
+
+.maintenance-select-machine,
+.maintenance-day,
+.button-save-maintenance-message {
+  padding: 10px;
+  width: 10%;
+  border-radius: 8px;
+  border: 1px solid black;
+  margin: 2px;
+}
+
+.maintenance-select-machine {
+  width: 12%;
+}
+
+.button-save-maintenance-message {
+  border: none;
+  color: white;
+  font-weight: bold;
+  width: 7%;
+  cursor: pointer;
+  background-color: #ff6060;
+  transition: 0.2s ease-in-out;
+}
+
+.button-save-maintenance-message:hover {
+  background-color: rgb(225, 144, 144);
+}
+
+.maintenance-message {
+  margin: 5px;
+  background-color: rgb(238, 238, 238);
+  border-radius: 8px;
+  padding: 0.5rem;
+  width: 70%;
+  height: auto;
+  box-shadow: 0 0 8px rgb(99, 99, 99);
+}
+
+.logged-maintenance-metadata {
+  font-size: 10px;
+  padding: 0.2rem;
+}
+
+.button-mark-as-done-green {
+  padding: 5px;
+  border-radius: 5px;
+  border: none;
+  background-color: green;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.button-mark-as-done-red {
+  padding: 5px;
+  border-radius: 5px;
+  border: none;
+  background-color: red;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.input-maintenance-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: white;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  border-top: 1px solid #ccc;
+}
+
+.input-controller-maintenance {
+  position: fixed;
+  bottom: 140px;
+  width: 50px;
+  background-color: rgb(233, 233, 233);
+  margin-left: 5px;
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+.maintenance-message-delete-button {
+  color: red;
+  background-color: rgb(238, 238, 238);
+  font-weight: bold;
+  border: none;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .input-maintenance-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .maintenance-summary-input {
+    width: 80%;
+  }
+
+  .input-controller-maintenance {
+    position: fixed;
+    bottom: 330px;
+    width: 40px;
+    background-color: rgb(166, 166, 166);
+    margin-left: 5px;
+    border-radius: 100px;
+    cursor: pointer;
+  }
+
+  .maintenance-select-machine,
+  .maintenance-day,
+  .button-save-maintenance-message {
+    width: 60%;
+  }
+
+  .maintenance-header {
+    font-size: 1.1rem;
+  }
+}

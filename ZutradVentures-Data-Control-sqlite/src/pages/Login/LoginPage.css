@@ -1,0 +1,96 @@
+.login-container {
+    background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url('../../assets/images/machines.png');
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-sub-container {
+    background-color: white;
+    box-shadow: 0 0px 10px rgba(0,0,0,0.2);
+    width: 50%;
+    border-radius: 8px;
+    padding: 1.2rem;
+}
+
+.login-header {
+    margin-bottom: 10px;
+    text-align: center;
+    min-width: 50%;
+    max-width: 80%;
+}
+
+.login-form {
+    text-align: center;
+}
+
+.input-box {
+    border-radius: 8px;
+    padding: 0.8rem;
+    margin: 0.10rem;
+    width: 80%;
+    box-sizing: border-box;
+    font-size: 0.8rem;
+}
+
+.password-input-container {
+    position: relative;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.password-input-container input {
+    width: 100%;
+    border-radius: 8px;
+    padding: 0.8rem;
+    box-sizing: border-box;
+}
+
+.toggle-password-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.login-button {
+    padding: 0.8rem;
+    background-color: rgb(255, 0, 0);
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    min-width: 20%;
+    max-width: 30%;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.forgot-password-link {
+    font-size: 12px;
+    text-decoration: none;
+    font-style: italic;
+    color: rgb(255, 144, 144);
+    margin-left: 10px;
+}
+
+.login-button:hover {
+    background-color: rgb(255, 144, 144);
+    transform: translateY(-5%);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+@media screen and (min-width: 1024px) {
+    .login-sub-container {
+        width: 30%;
+    }
+}
+

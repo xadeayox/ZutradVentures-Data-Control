@@ -1,0 +1,64 @@
+.view-reports-container {
+    margin: 5px;
+    background-color: rgb(238, 238, 238);
+    border-radius: 8px;
+    padding: 0.5rem;
+    width: 300px;
+    height: auto;
+    box-shadow: 0 0 8px rgb(99, 99, 99);
+}
+
+.view-reports-header {
+    color: rgb(99, 99, 99);
+    margin: 0px;
+    padding: 0.3rem;
+}
+
+.report-summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    background-color: whitesmoke;
+    font-weight: bold;
+    margin: 5px;
+    border-radius: 8px;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.report-summary::before {
+  content: "➡️";                /* your custom icon */
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: bold;
+  color: #333;
+}
+
+.report-details {
+  border-radius: 6px;
+}
+
+.report-details[open] {
+  background-color: whitesmoke; /* style when expanded */
+}
+
+
+.view-reports-link {
+    text-decoration: none;
+    color: #FF6060;
+    font-style: italic;
+    transition: 0.2s ease-in-out;
+    z-index: 10;
+}
+
+.view-reports-link:hover {
+    color: rgb(225, 144, 144);
+}
+
+@media screen and (min-width: 1000px) {
+    .view-reports-container {
+        width: 27%;
+    }
+}

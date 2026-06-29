@@ -1,0 +1,65 @@
+.store-items-page-container {
+    height: 100vh;
+}
+
+.store-items-container {
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.store-item-card {
+    background-color: whitesmoke;
+    margin: 3px;
+    width: 500px;
+    height: auto;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0 0 4px rgb(99, 99, 99);
+}
+
+.store-items-header {
+    color: rgb(99, 99, 99);
+}
+
+.store-item-details {
+    color: rgb(65, 65, 65);
+    font-weight: bold;
+}
+
+.store-item-button-container {
+    display: flex;
+    justify-content: right;
+}
+
+.store-item-button {
+    padding: 3px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.store-item-update-button {
+    margin-right: 2px;
+    background-color: green;
+}
+
+.store-item-delete-button {
+    background-color: rgb(255, 73, 73);
+}
+
+.update-store-item-part-number {
+    margin-left: 2px;
+    border-radius: 3px;
+    border: 1px solid black;
+}
+
+.update-store-item-quantity {
+    width: 50px;
+    border-radius: 3px;
+    border: 1px solid black;
+}

@@ -1,0 +1,7 @@
+.back-to-main-store-link {
+    text-decoration: none;
+    font-style: italic;
+    color: rgb(255, 87, 87);
+    cursor: pointer;
+    margin-left: 10px;
+}

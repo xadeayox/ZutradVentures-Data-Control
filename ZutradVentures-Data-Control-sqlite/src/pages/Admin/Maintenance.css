@@ -1,0 +1,63 @@
+.maintenance-container {
+    margin: 5px;
+    background-color: rgb(238, 238, 238);
+    border-radius: 8px;
+    padding: 0.5rem;
+    width: 300px;
+    height: auto;
+    box-shadow: 0 0 8px rgb(99, 99, 99);
+}
+
+.maintenance-header {
+    color: rgb(99, 99, 99);
+    margin: 0px;
+    padding: 0.3rem;
+}
+
+.maintenance-summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    background-color: whitesmoke;
+    font-weight: bold;
+    margin: 5px;
+    border-radius: 8px;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.maintenance-summary::before {
+  content: "➡️";                /* your custom icon */
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: bold;
+  color: #333;
+}
+
+.maintenance-details {
+  border-radius: 6px;
+}
+
+.maintenance-details[open] {
+  background-color: whitesmoke; /* style when expanded */
+}
+
+.maintenance-link {
+    text-decoration: none;
+    color: #FF6060;
+    font-style: italic;
+    transition: 0.2s ease-in-out;
+    z-index: 10;
+}
+
+.maintenance-link:hover {
+    color: rgb(225, 144, 144);
+}
+
+@media screen and (min-width: 1000px) {
+    .maintenance-container {
+        width: 27%;
+    }
+}
