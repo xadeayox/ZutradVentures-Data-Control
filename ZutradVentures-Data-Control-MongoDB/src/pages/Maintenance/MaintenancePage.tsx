@@ -20,7 +20,7 @@ interface SearchTermProps {
 }
 
 interface ClientOption {
-    id: number;
+    _id: string;
     companyName: string;
 }
 
@@ -136,7 +136,7 @@ export default function MaintenancePage({ searchTerm, setSearchTerm }: SearchTer
                         maintenanceLogs={filteredLogs}
                         onMarkDone={fetchLogs}
                         onStatusChange={fetchLogs}
-                        onDelete={(id) => setMaintenanceLogs(prev => prev.filter(log => log.id !== id))}
+                        onDelete={(id) => setMaintenanceLogs(prev => prev.filter(log => log._id !== id))}
                     />
                     <div ref={bottomRef}></div>
                 </div>
@@ -160,14 +160,17 @@ export default function MaintenancePage({ searchTerm, setSearchTerm }: SearchTer
                     />
                     {/* Client dropdown — pulled from the database */}
                     <select
-                        className="maintenance-select-machine"
                         title="selection"
                         value={clientId}
-                        onChange={(e) => setClientId(e.target.value)}
+                        className="maintenance-select-machine"
+                        onInput={(e) => {
+                            const target = e.target as HTMLSelectElement;
+                            setClientId(target.value);
+                        }}
                     >
-                        <option value="" disabled>Select Client</option>
+                        <option value="" disabled>Select Factory</option>
                         {clients.map(client => (
-                            <option key={client.id} value={client.id}>
+                            <option key={client._id} value={client._id}>
                                 {client?.companyName ?? 'Unknown Client'}
                             </option>
                         ))}

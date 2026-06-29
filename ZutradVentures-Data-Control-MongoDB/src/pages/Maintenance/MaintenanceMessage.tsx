@@ -5,7 +5,7 @@ import { useState } from "react";
 interface MaintenanceMessageProps {
     maintenanceLog: MaintenanceData;
     onMarkDone: () => void;
-    onDelete: (id: number) => void;
+    onDelete: (id: string) => void;
 }
 
 export function MaintenanceMessage({ maintenanceLog, onMarkDone, onDelete }: MaintenanceMessageProps) {
@@ -17,7 +17,7 @@ export function MaintenanceMessage({ maintenanceLog, onMarkDone, onDelete }: Mai
 
         try {
             const response = await apiFetch(
-                `/api/maintenance/${maintenanceLog.id}/done`,
+                `/api/maintenance/${maintenanceLog._id}/done`,
                 { method: 'PATCH' }
             );
 
@@ -30,7 +30,7 @@ export function MaintenanceMessage({ maintenanceLog, onMarkDone, onDelete }: Mai
         }
     }
 
-    async function deleteMaintenance(id: number) {
+    async function deleteMaintenance(id: string) {
         if (!window.confirm('Delete this Maintenance?')) return;
         setLoading(true);
         setError('');
@@ -72,7 +72,7 @@ export function MaintenanceMessage({ maintenanceLog, onMarkDone, onDelete }: Mai
             </button>
             <button 
                 className="maintenance-message-delete-button"
-                onClick={() => deleteMaintenance(maintenanceLog.id)}
+                onClick={() => deleteMaintenance(maintenanceLog._id)}
                 disabled={loading}
             >
                 Delete

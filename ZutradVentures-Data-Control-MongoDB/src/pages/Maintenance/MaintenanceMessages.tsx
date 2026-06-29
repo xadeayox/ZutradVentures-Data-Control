@@ -5,7 +5,7 @@ interface MaintenanceMessagesProps {
     maintenanceLogs: MaintenanceData[];
     onMarkDone: () => void;     // re-fetches logs after marking as done
     onStatusChange: () => void;
-    onDelete: (id: number) => void; 
+    onDelete: (id: string) => void; 
 }
 
 export function MaintenanceMessages({ maintenanceLogs, onMarkDone, onDelete }: MaintenanceMessagesProps) {
@@ -13,7 +13,7 @@ export function MaintenanceMessages({ maintenanceLogs, onMarkDone, onDelete }: M
         <>
             {maintenanceLogs.map((log) => (
                 <MaintenanceMessage
-                    key={log.id}
+                    key={log._id}
                     maintenanceLog={log}
                     onMarkDone={onMarkDone}
                     onDelete={onDelete}
