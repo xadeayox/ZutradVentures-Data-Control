@@ -4,7 +4,7 @@ import './SpecialRoles.css';
 import CheckMarkLogo from '../../assets/images/check-mark.png';
 
 interface User {
-    id: number;
+    _id: string;
     firstName: string;
     surname: string;
     role: string;
@@ -48,7 +48,7 @@ export function SpecialRoles() {
     );
 
     // Pages the selected user already has for the remove dropdown
-    const selectedUserForRemove = users.find(u => u.id === Number(removeUserId));
+    const selectedUserForRemove = users.find(u => u._id === removeUserId);
     const existingPermissions = selectedUserForRemove?.permissions || [];
 
     async function handleAssignRole() {
@@ -143,7 +143,7 @@ export function SpecialRoles() {
                 >
                     <option value="" disabled hidden>Select Staff</option>
                     {nonAdminUsers.map((user) => (
-                        <option key={user.id} value={user.id}>
+                        <option key={user._id} value={user._id}>
                             {user.firstName} {user.surname} ({user.role})
                         </option>
                     ))}
@@ -197,7 +197,7 @@ export function SpecialRoles() {
                     <option value="" disabled hidden>Select Staff</option>
                     {/* Only show users who have at least one special permission */}
                     {users.filter(u => u.permissions.length > 0).map((user) => (
-                        <option key={user.id} value={user.id}>
+                        <option key={user._id} value={user._id}>
                             {user.firstName} {user.surname} ({user.role})
                         </option>
                     ))}
