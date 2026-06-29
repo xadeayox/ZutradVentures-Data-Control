@@ -20,7 +20,7 @@ interface SearchTermProps {
 }
 
 interface ClientOption {
-    id: number;
+    _id: string;
     companyName: string;
 }
 
@@ -120,7 +120,7 @@ export default function SupplyPage({ searchTerm, setSearchTerm }: SearchTermProp
                 const data = await res.json();
                 throw new Error(data.message || 'Delete failed.');
             }
-            setSupplies(prev => prev.filter(s => s.id !== id)); // ✅ removes it instantly
+            setSupplies(prev => prev.filter(s => s._id !== id)); // ✅ removes it instantly
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Delete failed.');
         }
@@ -143,7 +143,7 @@ export default function SupplyPage({ searchTerm, setSearchTerm }: SearchTermProp
                     Enter Supply to get Started
                 </h3>
                 {filteredSupplies.map((item) => (
-                    <div className="supply-item-card" key={item.id}>
+                    <div className="supply-item-card" key={item._id}>
                         <h3 className="supply-item-header">
                             {item.goodsSupplied} : {item.client?.companyName ?? 'Unknown Client'}
                         </h3>
@@ -159,7 +159,7 @@ export default function SupplyPage({ searchTerm, setSearchTerm }: SearchTermProp
                         <span>
                             <button 
                                 className="delete-supply-button"
-                                onClick={() => deleteSupply(item.id)}
+                                onClick={() => deleteSupply(item._id)}
                             >
                                 Delete
                             </button>
@@ -202,14 +202,17 @@ export default function SupplyPage({ searchTerm, setSearchTerm }: SearchTermProp
                 Factory:
                 <select
                     title="selection"
-                    className="supply-page-input supply-page-input-factory"
                     value={clientId}
-                    onChange={(e) => setClientId(e.target.value)}
+                    className="report-factory-selection"
+                    onInput={(e) => {
+                        const target = e.target as HTMLSelectElement;
+                        setClientId(target.value);
+                    }}
                 >
-                    <option value="" disabled>Select Plant / Factory</option>
+                    <option value="" disabled>Select Factory</option>
                     {clients.map(client => (
-                        <option key={client.id} value={client.id}>
-                            {client.companyName}
+                        <option key={client._id} value={client._id}>
+                            {client?.companyName ?? 'Unknown Client'}
                         </option>
                     ))}
                 </select>
