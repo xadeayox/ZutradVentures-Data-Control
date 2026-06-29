@@ -184,7 +184,7 @@ router.get('/:id/download', protect, async (req, res) => {
 // ─── DELETE /api/invoices/:id ─────────────────────────────────────────────────
 // Admins can delete any invoice. Receptionists can only delete their own.
 
-router.delete('/:id', protect, restrictTo('administrator', 'receptionist'), async (req, res) => {
+router.delete('/:id', protect, restrictTo('administrator'), async (req, res) => {
     try {
         const invoice = await Invoice.findById(req.params.id);
 

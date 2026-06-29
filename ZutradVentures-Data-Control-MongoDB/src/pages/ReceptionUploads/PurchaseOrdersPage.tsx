@@ -18,7 +18,7 @@ import { apiFetch } from '../../api';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface PurchaseOrderRecord {
-    id: number;
+    _id: string;
     fileName: string;
     storedName: string;
     mimeType: string;
@@ -28,7 +28,7 @@ interface PurchaseOrderRecord {
 }
 
 interface ClientOption {
-    id: number;
+    _id: string;
     companyName: string;
 }
 
@@ -167,7 +167,7 @@ export default function PurchaseOrdersPage({ searchTerm, setSearchTerm }: Search
     }
 
     // ── Delete Purchase Order ────────────────────────────────────────────────
-    async function deletePurchaseOrder(id: number) {
+    async function deletePurchaseOrder(id: string) {
         if (!window.confirm('Delete this Purchase Order?')) return;
         try {
             const res = await apiFetch(`/api/purchaseorders/${id}`, { method: 'DELETE' });
@@ -175,7 +175,7 @@ export default function PurchaseOrdersPage({ searchTerm, setSearchTerm }: Search
                 const data = await res.json();
                 throw new Error(data.message || 'Delete failed.');
             }
-            setPurchaseOrderList(prev => prev.filter(po => po.id !== id));
+            setPurchaseOrderList(prev => prev.filter(po => po._id !== id));
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Delete failed.');
         }
@@ -207,7 +207,7 @@ export default function PurchaseOrdersPage({ searchTerm, setSearchTerm }: Search
                 )}
 
                 {filteredPurchaseOrders.map(po => (
-                    <div className="purchase-orders-card reception-uploads-card" key={po.id}>
+                    <div className="purchase-orders-card reception-uploads-card" key={po._id}>
                         <h3 className="reception-uploads-header">
                             {po.clientFactory ?? 'Unknown Client'}
                         </h3>
@@ -235,7 +235,7 @@ export default function PurchaseOrdersPage({ searchTerm, setSearchTerm }: Search
                         </p>
                         <p>
                             <button
-                                onClick={() => deletePurchaseOrder(po.id)}
+                                onClick={() => deletePurchaseOrder(po._id)}
                                 className="report-uploads-download-file"
                             >
                                 Delete File
@@ -262,15 +262,18 @@ export default function PurchaseOrdersPage({ searchTerm, setSearchTerm }: Search
             <div className="purchase-orders-input-container reception-input-container">
                 {/* Client dropdown populated from the database */}
                 <select
-                    title="Select client factory"
-                    className="reception-input-select-factory"
+                    title="selection"
                     value={selectedClientId}
-                    onChange={e => setSelectedClientId(e.target.value)}
+                    className="report-factory-selection"
+                    onInput={(e) => {
+                        const target = e.target as HTMLSelectElement;
+                        setSelectedClientId(target.value);
+                    }}
                 >
                     <option value="" disabled>Select Factory</option>
                     {clients.map(client => (
-                        <option key={client.id} value={client.id}>
-                            {client.companyName}
+                        <option key={client._id} value={client._id}>
+                            {client?.companyName ?? 'Unknown Client'}
                         </option>
                     ))}
                 </select>
