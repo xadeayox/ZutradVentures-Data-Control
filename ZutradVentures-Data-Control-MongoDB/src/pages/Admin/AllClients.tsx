@@ -17,7 +17,7 @@ interface searchTermProps {
 }
 
 interface Machine {
-    id: number;
+    _id: string;
     machine: string;
     serialNumber: string;
     lineInstalled: number;
@@ -28,7 +28,7 @@ interface Machine {
 }
 
 interface Client {
-    id: number;
+    _id: string;
     companyName: string;
     address: string;
     machines: Machine[];
@@ -64,8 +64,8 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
         }
     }
 
-    async function deleteClient(id: number) {
-        const client = clients.find(c => c.id === id);
+    async function deleteClient(id: string) {
+        const client = clients.find(c => c._id === String(id));
 
         const confirmed = window.confirm(
             `Delete ${client?.companyName}? This will also delete all machines under it.`
@@ -84,8 +84,8 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
                 throw new Error(data.message);
             }
 
-            setClients(prev => prev.filter(c => c.id !== id));
-            setFilteredClients(prev => prev.filter(c => c.id !== id));
+            setClients(prev => prev.filter(c => c._id !== String(id)));
+            setFilteredClients(prev => prev.filter(c => c._id !== String(id)));
 
         } catch (error) {
             console.error(error);
@@ -93,7 +93,7 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
         }
     }
 
-    async function deleteMachine(id: number) {
+    async function deleteMachine(id: string) {
         const confirmed = window.confirm('Delete this machine?');
 
         if (!confirmed) return;
@@ -112,14 +112,14 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
             setClients(prev =>
                 prev.map(client => ({
                     ...client,
-                    machines: client.machines.filter(m => m.id !== id)
+                    machines: client.machines.filter(m => m._id !== String(id))
                 }))
             );
 
             setFilteredClients(prev =>
                 prev.map(client => ({
                     ...client,
-                    machines: client.machines.filter(m => m.id !== id)
+                    machines: client.machines.filter(m => m._id !== String(id))
                 }))
             );
 
@@ -177,7 +177,7 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
                 )}
 
                 {filteredClients.map(client => (
-                    <div key={client.id} className="sub-page-card all-clients-sub-page-card">
+                    <div key={client._id} className="sub-page-card all-clients-sub-page-card">
 
                         {/* CLIENT HEADER */}
                         <h3 className="sub-page-card-header">
@@ -195,7 +195,7 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
 
                             {client.machines?.length > 0 ? (
                                 client.machines.map(machine => (
-                                    <div key={machine.id} className='all-client-machine-contents'>
+                                    <div key={machine._id} className='all-client-machine-contents'>
 
                                         <p>Machine: {machine.machine}</p>
                                         <p>Serial: {machine.serialNumber}</p>
@@ -207,7 +207,7 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
 
                                         <button
                                             className="sub-page-delete-button"
-                                            onClick={() => deleteMachine(machine.id)}
+                                            onClick={() => deleteMachine(machine._id)}
                                         >
                                             Delete Machine
                                         </button>
@@ -221,7 +221,7 @@ export default function AllClients({ searchTerm, setSearchTerm }: searchTermProp
                         {/* ONLY ONE CLIENT DELETE BUTTON */}
                         <button
                             className="sub-page-delete-button"
-                            onClick={() => deleteClient(client.id)}
+                            onClick={() => deleteClient(client._id)}
                         >
                             Delete Client
                         </button>

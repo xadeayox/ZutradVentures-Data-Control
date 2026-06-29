@@ -173,6 +173,7 @@ router.patch('/machines/:id', protect, async (req, res) => {
 // Delete a machine by its id.
 
 router.delete('/machines/:id', protect, async (req, res) => {
+    console.log('Delete client id:', req.params.id);
     try {
         const machine = await Machine.findByIdAndDelete(req.params.id);
         if (!machine) {
@@ -192,6 +193,7 @@ router.delete('/machines/:id', protect, async (req, res) => {
 // Delete a client and all their machines (CASCADE equivalent).
 
 router.delete('/:id', protect, async (req, res) => {
+    console.log('Delete client id:', req.params.id);
     try {
         const client = await Client.findById(req.params.id);
 

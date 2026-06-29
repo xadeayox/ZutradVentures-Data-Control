@@ -28,7 +28,7 @@ export function ClientMachines({ machine, onUpdate, onDelete }: ClientMachinePro
         try {
 
             // PATCH request — only sends the fields that changed
-            const response = await apiFetch(`/api/clients/machines/${machine.id}`, {
+            const response = await apiFetch(`/api/clients/machines/${machine._id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
                     lastMaintenanceDate: updateDate,
@@ -50,7 +50,7 @@ export function ClientMachines({ machine, onUpdate, onDelete }: ClientMachinePro
             onUpdate();  // tell the parent page to re-fetch updated data
 
         } catch (err) {
-            setError('Could not connect to the server.');
+            setError(`${err}: Could not connect to the server.`);
         }
 
         setLoading(false);
@@ -61,7 +61,7 @@ export function ClientMachines({ machine, onUpdate, onDelete }: ClientMachinePro
 
         try {
 
-            const response = await apiFetch(`/api/clients/machines/${machine.id}`, {
+            const response = await apiFetch(`/api/clients/machines/${machine._id}`, {
                 method: 'DELETE',
             });
 
@@ -70,7 +70,7 @@ export function ClientMachines({ machine, onUpdate, onDelete }: ClientMachinePro
             }
 
         } catch (err) {
-            setError('Could not connect to the server.');
+            setError(`${err}: Could not connect to the server.`);
         }
     }
 
