@@ -21,7 +21,7 @@ interface Permission {
 }
 
 interface User {
-    id: number;
+    _id: string;
     firstName: string;
     surname: string;
     email: string;
@@ -84,8 +84,8 @@ useEffect(() => {
         }
     }
 
-    async function deleteUser(id: number) {
-        const selectedUser = users.find(user => user.id === id);
+    async function deleteUser(id: string) {
+        const selectedUser = users.find(user => user._id === id);
 
         const confirmed = window.confirm(
             `Delete ${selectedUser?.firstName} ${selectedUser?.surname}?`
@@ -107,11 +107,11 @@ useEffect(() => {
             }
 
             setUsers(prev =>
-                prev.filter(user => user.id !== id)
+                prev.filter(user => user._id !== id)
             );
 
             setFilteredUsers(prev =>
-                prev.filter(user => user.id !== id)
+                prev.filter(user => user._id !== id)
             );
 
         } catch (error) {
@@ -152,7 +152,7 @@ useEffect(() => {
                 {
                     filteredUsers.map((user) => (
                         <div
-                            key={user.id}
+                            key={user._id}
                             className="sub-page-card"
                         >
                             <h3 className="sub-page-card-header">
@@ -180,11 +180,11 @@ useEffect(() => {
                             <p>
                                 <button
                                     className="sub-page-delete-button"
-                                    disabled={currentUser?.id === user.id}
-                                    onClick={() => deleteUser(user.id)}
+                                    disabled={currentUser?.id === user._id}
+                                    onClick={() => deleteUser(user._id)}
                                 >
                                     {
-                                        currentUser?.id === user.id
+                                        currentUser?.id === user._id
                                             ? 'Current User'
                                             : 'Delete User'
                                     }
