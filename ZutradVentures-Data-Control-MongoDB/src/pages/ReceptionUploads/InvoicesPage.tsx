@@ -18,8 +18,8 @@ import { apiFetch } from "../../api";
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Matches the shape returned by GET /api/invoices
 interface InvoiceRecord {
-    id: number;
-    clientId: number | null;
+    _id: string;
+    clientId: string | null;
     clientName: string | null;
     uploadedBy: string;
     fileName: string;
@@ -30,7 +30,7 @@ interface InvoiceRecord {
 }
 
 interface ClientOption {
-    id: number;
+    _id: string;
     companyName: string;
 }
 
@@ -51,7 +51,7 @@ function fileLogo(fileName: string): string {
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermProps) {
     const [clients, setClients]               = useState<ClientOption[]>([]);
-    const [selectedClientId, setSelectedClientId] = useState<number | ''>('');
+    const [selectedClientId, setSelectedClientId] = useState<string>('');
     const [invoiceList, setInvoiceList]       = useState<InvoiceRecord[]>([]);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploading, setUploading]       = useState(false);
@@ -134,7 +134,7 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
     // would not send it).
     async function downloadInvoice(invoice: InvoiceRecord) {
         try {
-            const res = await apiFetch(`/api/invoices/${invoice.id}/download`);
+            const res = await apiFetch(`/api/invoices/${invoice._id}/download`);
             if (!res.ok) throw new Error('Download failed.');
 
             const blob = await res.blob();
@@ -153,7 +153,7 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
     }
 
     // ── Delete ────────────────────────────────────────────────────────────
-    async function deleteInvoice(id: number) {
+    async function deleteInvoice(id: string) {
         if (!window.confirm('Delete this invoice?')) return;
         try {
             const res = await apiFetch(`/api/invoices/${id}`, { method: 'DELETE' });
@@ -161,7 +161,7 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
                 const data = await res.json();
                 throw new Error(data.message || 'Delete failed.');
             }
-            setInvoiceList(prev => prev.filter(inv => inv.id !== id));
+            setInvoiceList(prev => prev.filter(inv => inv._id !== id));
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Delete failed.');
         }
@@ -192,7 +192,7 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
                 </h3>
 
                 {invoiceList.map((invoice) => (
-                    <div className="invoices-card reception-uploads-card" key={invoice.id}>
+                    <div className="invoices-card reception-uploads-card" key={invoice._id}>
                         <h3 className="reception-uploads-header">
                             {invoice.clientName ?? 'Unknown Client'}
                         </h3>
@@ -222,7 +222,7 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
                         {/* Delete button */}
                         <p>
                             <button
-                                onClick={() => deleteInvoice(invoice.id)}
+                                onClick={() => deleteInvoice(invoice._id)}
                                 className="report-uploads-download-file"
                             >
                                 Delete File
@@ -242,14 +242,17 @@ export default function InvoicesPage({ searchTerm, setSearchTerm }: SearchTermPr
             <div className="invoices-input-container reception-input-container">
                 <select
                     title="selection"
-                    className="reception-input-select-factory"
                     value={selectedClientId}
-                    onChange={(e) => setSelectedClientId(Number(e.target.value))}
+                    className="reception-input-select-factory"
+                    onInput={(e) => {
+                        const target = e.target as HTMLSelectElement;
+                        setSelectedClientId(target.value);
+                    }}
                 >
-                    <option value="" disabled>Select Client</option>
-                    {clients.map((client) => (
-                        <option key={client.id} value={client.id}>
-                            {client.companyName}
+                    <option value="" disabled>Select Factory</option>
+                    {clients.map(client => (
+                        <option key={client._id} value={client._id}>
+                            {client?.companyName ?? 'Unknown Client'}
                         </option>
                     ))}
                 </select>
