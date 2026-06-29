@@ -18,7 +18,7 @@ import { apiFetch } from '../../api';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface GrnRecord {
-    id: number;
+    _id: string;
     fileName: string;
     storedName: string;
     mimeType: string;
@@ -28,7 +28,7 @@ interface GrnRecord {
 }
 
 interface ClientOption {
-    id: number;
+    _id: string;
     companyName: string;
 }
 
@@ -173,7 +173,7 @@ export default function GRNsPage({ searchTerm, setSearchTerm }: SearchTermProps)
     }
 
     // ── Delete ────────────────────────────────────────────────────────────
-    async function deleteGrn(id: number) {
+    async function deleteGrn(id: string) {
         if (!window.confirm('Delete this GRN?')) return;
         try {
             const res = await apiFetch(`/api/grns/${id}`, { method: 'DELETE' });
@@ -181,7 +181,7 @@ export default function GRNsPage({ searchTerm, setSearchTerm }: SearchTermProps)
                 const data = await res.json();
                 throw new Error(data.message || 'Delete failed.');
             }
-            setGrnList(prev => prev.filter(inv => inv.id !== id));
+            setGrnList(prev => prev.filter(inv => inv._id !== id));
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Delete failed.');
         }
@@ -213,7 +213,7 @@ export default function GRNsPage({ searchTerm, setSearchTerm }: SearchTermProps)
                 )}
 
                 {filteredGrns.map(grn => (
-                    <div className="grns-card reception-uploads-card" key={grn.id}>
+                    <div className="grns-card reception-uploads-card" key={grn._id}>
                         <h3 className="reception-uploads-header">
                             {grn.clientFactory ?? 'Unknown Client'}
                         </h3>
@@ -241,7 +241,7 @@ export default function GRNsPage({ searchTerm, setSearchTerm }: SearchTermProps)
                         </p>
                         <p>
                             <button
-                                onClick={() => deleteGrn(grn.id)}
+                                onClick={() => deleteGrn(grn._id)}
                                 className="report-uploads-download-file"
                             >
                                 Delete File
@@ -268,15 +268,18 @@ export default function GRNsPage({ searchTerm, setSearchTerm }: SearchTermProps)
             <div className="grns-input-container reception-input-container">
                 {/* Client dropdown populated from the database */}
                 <select
-                    title="Select client factory"
-                    className="reception-input-select-factory"
+                    title="selection"
                     value={selectedClientId}
-                    onChange={e => setSelectedClientId(e.target.value)}
+                    className="report-factory-selection"
+                    onInput={(e) => {
+                        const target = e.target as HTMLSelectElement;
+                        setSelectedClientId(target.value);
+                    }}
                 >
                     <option value="" disabled>Select Factory</option>
                     {clients.map(client => (
-                        <option key={client.id} value={client.id}>
-                            {client.companyName}
+                        <option key={client._id} value={client._id}>
+                            {client?.companyName ?? 'Unknown Client'}
                         </option>
                     ))}
                 </select>
