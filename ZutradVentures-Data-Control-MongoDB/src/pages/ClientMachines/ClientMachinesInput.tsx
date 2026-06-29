@@ -12,7 +12,7 @@ interface ClientMachineInputProps {
 export function ClientMachinesInput({ displayInput, clients, onMachineAdded }: ClientMachineInputProps) {
     const [alertMessage, setAlertMessage] = useState(false);
     const [serialNumber, setSerialNumber] = useState('');
-    const [clientId, setClientId] = useState('');       // selected client from dropdown
+    const [clientId, setClientId] = useState('');
     const [lineInstalled, setLineInstalled] = useState(0);
     const [machine, setMachine] = useState('');
     const [installedDate, setInstalledDate] = useState('');
@@ -33,13 +33,14 @@ export function ClientMachinesInput({ displayInput, clients, onMachineAdded }: C
         setLoading(true);
 
         try {
-
+            console.log('clientId state:', clientId);
             const response = await apiFetch('/api/clients/machines', {
                 method: 'POST',
                 body: JSON.stringify({
                     serialNumber,
-                    clientId,
+                    clientName: clients.find(c => c._id === clientId)?.companyName ?? '',
                     lineInstalled,
+                    clientId,
                     machine,
                     installedDate,
                     maintenanceCycle,
@@ -72,12 +73,11 @@ export function ClientMachinesInput({ displayInput, clients, onMachineAdded }: C
             onMachineAdded();
 
         } catch (err) {
-            setError('Could not connect to the server.');
+            setError(`${err} Could not connect to the server.`);
         }
 
         setLoading(false);
     }
-
     return (
         <fieldset className="client-machine-input-container" style={{ display: displayInput ? 'flex' : 'none' }}>
             <legend className="register-machine-input-header">
@@ -99,14 +99,20 @@ export function ClientMachinesInput({ displayInput, clients, onMachineAdded }: C
                     title="selection"
                     className="client-machine-input"
                     value={clientId}
-                    onChange={(e) => setClientId(e.target.value)}
+                    onInput={(e) => {
+    const target = e.target as HTMLSelectElement;
+    console.log('onInput value:', target.value);
+    setClientId(target.value);
+}}
                 >
                     <option value="" disabled>Select Client</option>
-                    {clients.map(client => (
-                        <option key={client.id} value={client.id}>
+                    {clients.map(client => {
+                        return (
+                        <option key={client._id} value={String(client._id)}>
                             {client.companyName}
                         </option>
-                    ))}
+                      )} 
+                    )}
                 </select>
             </span>
 

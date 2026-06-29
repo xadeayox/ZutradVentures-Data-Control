@@ -40,7 +40,7 @@ export default function ClientMachinesPage({ searchTerm, setSearchTerm }: Search
                 setError(data.message);
             }
         } catch (err) {
-            setError('Could not connect to the server.');
+            setError(`${err}: Could not connect to the server.`);
         }
         setLoading(false);
     }
@@ -89,13 +89,13 @@ export default function ClientMachinesPage({ searchTerm, setSearchTerm }: Search
 
                 {/* Group machines under their client company */}
                 {filteredClients.map(client => (
-                    <div key={client.id}>
+                    <div key={client._id}>
                         <h2 style={{ padding: '10px', color: 'rgb(99, 99, 99)' }}>
                             {client.companyName} — {client.address}
                         </h2>
                         {client.machines.map(machine => (
                             <ClientMachines
-                                key={machine.id}
+                                key={machine._id}
                                 machine={machine}
                                 onUpdate={fetchClients}  // re-fetch after update
                                 onDelete={fetchClients}  // re-fetch after delete

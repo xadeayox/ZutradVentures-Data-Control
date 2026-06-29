@@ -88,6 +88,7 @@ router.get('/:id/machines', protect, async (req, res) => {
 // lastMaintenanceDate defaults to installedDate (same as original frontend logic).
 
 router.post('/machines', protect, async (req, res) => {
+    console.log(req.body);
     try {
         const {
             serialNumber,
@@ -96,7 +97,8 @@ router.post('/machines', protect, async (req, res) => {
             installedDate,
             maintenanceCycle,
             usageStatus,
-            clientId
+            clientId,
+            clientName
         } = req.body;
 
         if (!serialNumber || !machine || !lineInstalled || !installedDate ||
@@ -122,7 +124,8 @@ router.post('/machines', protect, async (req, res) => {
             maintenanceCycle,
             lastMaintenanceDate: installedDate,  // same as original frontend logic
             usageStatus,
-            clientId
+            clientId,
+            clientName
         });
 
         res.status(201).json({

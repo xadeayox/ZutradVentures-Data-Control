@@ -2,7 +2,7 @@
 // Both ClientMachinesPage, ClientMachines and ClientMachinesInput import from here
 
 export interface MachineData {
-    id: number;
+    _id: string;
     serialNumber: string;
     machine: string;
     lineInstalled: number;
@@ -14,7 +14,7 @@ export interface MachineData {
 }
 
 export interface ClientData {
-    id: number;
+    _id: string;
     companyName: string;
     address: string;
     machines: MachineData[];

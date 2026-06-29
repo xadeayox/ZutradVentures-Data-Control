@@ -43,6 +43,10 @@ const machineSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Client',
             required: true
+        },
+        clientName: {
+            type: String,
+            required: true
         }
     },
     {
