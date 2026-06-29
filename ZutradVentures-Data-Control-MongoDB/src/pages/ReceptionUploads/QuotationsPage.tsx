@@ -18,7 +18,7 @@ import { apiFetch } from '../../api';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface QuotationRecord {
-    id: number;
+    _id: string;
     fileName: string;
     storedName: string;
     mimeType: string;
@@ -28,7 +28,7 @@ interface QuotationRecord {
 }
 
 interface ClientOption {
-    id: number;
+    _id: string;
     companyName: string;
 }
 
@@ -171,7 +171,7 @@ const bottomRef    = useRef<HTMLDivElement | null>(null);
     }
 
     // ── Delete ────────────────────────────────────────────────────────────
-    async function deleteQuotation(id: number) {
+    async function deleteQuotation(id: string) {
         if (!window.confirm('Delete this quotation?')) return;
         try {
             const res = await apiFetch(`/api/quotations/${id}`, { method: 'DELETE' });
@@ -179,7 +179,7 @@ const bottomRef    = useRef<HTMLDivElement | null>(null);
                 const data = await res.json();
                 throw new Error(data.message || 'Delete failed.');
             }
-            setQuotationList(prev => prev.filter(q => q.id !== id));
+            setQuotationList(prev => prev.filter(q => q._id !== id));
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Delete failed.');
         }
@@ -211,7 +211,7 @@ const bottomRef    = useRef<HTMLDivElement | null>(null);
                 )}
 
                 {filteredQuotations.map(quotation => (
-                    <div className="quotations-card reception-uploads-card" key={quotation.id}>
+                    <div className="quotations-card reception-uploads-card" key={quotation._id}>
                         <h3 className="reception-uploads-header">
                             {quotation.clientFactory ?? 'Unknown Client'}
                         </h3>
@@ -239,7 +239,7 @@ const bottomRef    = useRef<HTMLDivElement | null>(null);
                         </p>
                         <p>
                             <button
-                                onClick={() => deleteQuotation(quotation.id)}
+                                onClick={() => deleteQuotation(quotation._id)}
                                 className="report-uploads-download-file"
                             >
                                 Delete File
@@ -265,16 +265,19 @@ const bottomRef    = useRef<HTMLDivElement | null>(null);
             {/* Upload form */}
             <div className="quotations-input-container reception-input-container">
                 {/* Client dropdown populated from the database */}
-                <select
-                    title="Select client factory"
-                    className="reception-input-select-factory"
+               <select
+                    title="selection"
                     value={selectedClientId}
-                    onChange={e => setSelectedClientId(e.target.value)}
+                    className="reception-input-select-factory"
+                    onInput={(e) => {
+                        const target = e.target as HTMLSelectElement;
+                        setSelectedClientId(target.value);
+                    }}
                 >
                     <option value="" disabled>Select Factory</option>
                     {clients.map(client => (
-                        <option key={client.id} value={client.id}>
-                            {client.companyName}
+                        <option key={client._id} value={client._id}>
+                            {client?.companyName ?? 'Unknown Client'}
                         </option>
                     ))}
                 </select>
