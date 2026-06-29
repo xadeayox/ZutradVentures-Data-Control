@@ -1,11 +1,11 @@
 // What a report looks like coming from the database
 export interface ReportData {
-    id: number;
+    _id: string;
     reportDetails: string;
     lineNumber: number;
     imagePaths: string[];
     status: 'pending' | 'approved' | 'rejected';
     createdAt: string;
-    client: { id: number; companyName: string };
-    user: { id: number; firstName: string; surname: string };
+    client: { _id: string; companyName: string };
+    user: { _id: string; firstName: string; surname: string };
 }

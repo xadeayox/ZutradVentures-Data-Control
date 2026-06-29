@@ -23,7 +23,7 @@ export function ReportMessage({ report, userRole, onStatusChange }: ReportMessag
         setLoading(true);
         setError('');
         try {
-            const response = await apiFetch(`/api/reports/${report.id}/status`, {
+            const response = await apiFetch(`/api/reports/${report._id}/status`, {
                 method: 'PATCH',
                 body: JSON.stringify({ status }),
             });
@@ -40,7 +40,7 @@ export function ReportMessage({ report, userRole, onStatusChange }: ReportMessag
         setLoading(false);
     }
 
-    async function deleteReport(id: number) {
+    async function deleteReport(id: string) {
         if (!window.confirm('Delete this Report?')) return;
         setLoading(true);
         setError('');
@@ -112,7 +112,7 @@ export function ReportMessage({ report, userRole, onStatusChange }: ReportMessag
 
                 <button
                     className="report-button report-button-delete"
-                    onClick={() => deleteReport(report.id)}
+                    onClick={() => deleteReport(report._id)}
                     disabled={loading}
                 >
                     Delete Report

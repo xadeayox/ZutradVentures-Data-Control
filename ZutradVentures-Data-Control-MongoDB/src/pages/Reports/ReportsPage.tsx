@@ -23,7 +23,7 @@ interface SearchTermProps {
 
 // What a client looks like in the factory dropdown
 interface ClientOption {
-    id: number;
+    _id: string;
     companyName: string;
 }
 
@@ -207,11 +207,14 @@ export default function ReportsPage({ searchTerm, setSearchTerm }: SearchTermPro
                             title="selection"
                             value={clientId}
                             className="report-factory-selection"
-                            onChange={(e) => setClientId(e.target.value)}
+                            onInput={(e) => {
+                                const target = e.target as HTMLSelectElement;
+                                setClientId(target.value);
+                            }}
                         >
                             <option value="" disabled>Select Factory</option>
                             {clients.map(client => (
-                                <option key={client.id} value={client.id}>
+                                <option key={client._id} value={client._id}>
                                     {client?.companyName ?? 'Unknown Client'}
                                 </option>
                             ))}

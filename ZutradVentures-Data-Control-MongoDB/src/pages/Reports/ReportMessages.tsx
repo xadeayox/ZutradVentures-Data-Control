@@ -13,7 +13,7 @@ export function ReportMessages({ reports, userRole, onStatusChange }: ReportsPro
             {reports.map((report) => (
                 <ReportMessage
                     report={report}
-                    key={report.id}
+                    key={report._id}
                     userRole={userRole}
                     onStatusChange={onStatusChange}
                 />
