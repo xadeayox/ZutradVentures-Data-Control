@@ -2,7 +2,7 @@
 // All store components import from here
 
 export interface StoreData {
-    id: number;
+    _id: string;
     serialNumber: string;
     partNumber: string;
     machinePart: string;

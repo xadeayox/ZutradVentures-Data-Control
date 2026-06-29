@@ -24,7 +24,7 @@ export function StoreItems({ storeItem, onUpdate, onDelete }: StoreItemsProps) {
         setError('');
 
         try {
-            const response = await apiFetch(`/api/store/${storeItem.id}`, {
+            const response = await apiFetch(`/api/store/${storeItem._id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({ quantity })
             });
@@ -41,7 +41,7 @@ export function StoreItems({ storeItem, onUpdate, onDelete }: StoreItemsProps) {
             onUpdate();
 
         } catch (err) {
-            setError('Could not connect to the server.');
+            setError(`${err}: Could not connect to the server.`);
         }
 
         setLoading(false);
@@ -51,14 +51,14 @@ export function StoreItems({ storeItem, onUpdate, onDelete }: StoreItemsProps) {
         if (!window.confirm('Are you sure you want to delete this item?')) return;
 
         try {
-            const response = await apiFetch(`/api/store/${storeItem.id}`, {
+            const response = await apiFetch(`/api/store/${storeItem._id}`, {
                 method: 'DELETE',
             });
 
             if (response.ok) onDelete();
 
         } catch (err) {
-            setError('Could not connect to the server.');
+            setError(`${err}: Could not connect to the server.`);
         }
     }
 

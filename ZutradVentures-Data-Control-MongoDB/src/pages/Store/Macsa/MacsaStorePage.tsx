@@ -42,7 +42,7 @@ export default function MacsaStorePage({ searchTerm, setSearchTerm }: SearchTerm
             <div className="store-items-container">
                 {filtered.map(item => (
                     <StoreItems
-                        key={item.id}
+                        key={item._id}
                         storeItem={item}
                         onUpdate={fetchItems}
                         onDelete={fetchItems}

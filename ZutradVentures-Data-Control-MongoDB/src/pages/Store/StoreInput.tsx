@@ -47,7 +47,7 @@ export function StoreInput({ toggleInput, onItemAdded }: StoreInputProps) {
             onItemAdded();  // re-fetch store to show the new item
 
         } catch (err) {
-            setError('Could not connect to the server.');
+            setError(`${err}: Could not connect to the server.`);
         }
 
         setLoading(false);

@@ -42,7 +42,7 @@ export default function BestCodeStorePage({ searchTerm, setSearchTerm }: SearchT
             <div className="store-items-container">
                 {filtered.map(item => (
                     <StoreItems
-                        key={item.id}
+                        key={item._id}
                         storeItem={item}
                         onUpdate={fetchItems}
                         onDelete={fetchItems}
